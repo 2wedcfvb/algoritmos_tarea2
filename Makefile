@@ -1,5 +1,5 @@
 GRUPO := 1
-NOMBRE_TAREA := algorithm_analyzer
+NOMBRE_TAREA := tarea2
 
 CC := gcc
 CFLAGS := -Wall -Wextra -std=c11 -Iinclude

@@ -14,7 +14,7 @@
  * @return int Indice del elemento encontrado o -1 si no existe.
  * @warning El arreglo debe estar ordenado por ID en orden ascendente.
  */
-int binary_search_by_id(Deportista *deportistas, int length, int targetId)
+int binary_search(Deportista *deportistas, int length, int targetId)
 {
     int left, right;
 

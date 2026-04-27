@@ -348,7 +348,7 @@ void run_search_benchmark()
             }
 
             start = clock();
-            sequential_search_by_id(workSequential, n, targetId);
+            sequential_search(workSequential, n, targetId);
             end = clock();
             totalWorstSeq += (double)(end - start) / CLOCKS_PER_SEC;
             free_deportistas_array(workSequential, n);
@@ -367,7 +367,7 @@ void run_search_benchmark()
             }
 
             start = clock();
-            binary_search_by_id(workBinary, n, targetId);
+            binary_search(workBinary, n, targetId);
             end = clock();
             totalWorstBin += (double)(end - start) / CLOCKS_PER_SEC;
             free_deportistas_array(workBinary, n);

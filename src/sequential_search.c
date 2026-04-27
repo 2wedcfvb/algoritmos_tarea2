@@ -13,7 +13,7 @@
  * @param targetId ID a buscar.
  * @return int Indice del elemento encontrado o -1 si no existe.
  */
-int sequential_search_by_id(Deportista *deportistas, int length, int targetId)
+int sequential_search(Deportista *deportistas, int length, int targetId)
 {
     int i;
 

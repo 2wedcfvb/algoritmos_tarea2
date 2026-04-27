@@ -35,23 +35,11 @@ typedef enum {
     INSERTION_SORT = 1,        /**< Insertion sort. */
     BUBBLE_SORT = 2,           /**< Bubble sort optimizado. */
     SELECTION_SORT = 3,        /**< Selection sort optimizado. */
-    COCKTAIL_SHAKER_SORT = 4   /**< Cocktail shaker sort. */
+    COCKTAIL_SHAKER_SORT = 4,   /**< Cocktail shaker sort. */
+    MERGE_SORT = 5,             /**< Merge sort. */
+    OPTIMIZED_MERGE_SORT = 6,   /**< Merge sort optimizado. */
+    QUICK_SORT = 7             /**< Quick sort. */
 } SortAlgorithm;
-
-/**
- * @brief Algoritmos de busqueda disponibles.
- */
-typedef enum {
-    SEQUENTIAL_SEARCH = 1, /**< Busqueda secuencial. */
-    BINARY_SEARCH = 2      /**< Busqueda binaria (requiere arreglo ordenado). */
-} SearchAlgorithm;
-
-/**
- * @brief Criterios disponibles para la busqueda.
- */
-typedef enum {
-    SEARCH_BY_ID = 1 /**< Buscar por ID. */
-} SearchCriteria;
 
 /**
  * @brief Compara dos deportistas segun un criterio.

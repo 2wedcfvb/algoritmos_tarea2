@@ -194,7 +194,7 @@ void search_by_id(int targetId)
                 return;
             }
 
-            index = sequential_search_by_id(deportistas, count, targetId);
+            index = sequential_search(deportistas, count, targetId);
 
             if(index < 0) {
                 snprintf(detail, sizeof(detail), "ID %d", targetId);
@@ -213,7 +213,7 @@ void search_by_id(int targetId)
 
             insertion_sort_deportistas(deportistas, count, SORT_BY_ID, ASCENDING);
 
-            index = binary_search_by_id(deportistas, count, targetId);
+            index = binary_search(deportistas, count, targetId);
 
             if(index < 0) {
                 snprintf(detail, sizeof(detail), "ID %d", targetId);

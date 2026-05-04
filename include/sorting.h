@@ -114,5 +114,8 @@ void optimized_bubble_sort(Deportista *deportistas, int length, SortCriteria cri
  * @param order Sentido del ordenamiento.
  */
 void optimized_selection_sort(Deportista *deportistas, int length, SortCriteria criteria, SortOrder order);
-
+void quick_sort_last(Deportista *deportistas, int low, int high, SortCriteria criteria, SortOrder order);
+void quick_sort_first(Deportista *deportistas, int low, int high, SortCriteria criteria, SortOrder order);
+void quick_sort_random(Deportista *deportistas, int low, int high, SortCriteria criteria, SortOrder order);
+void quick_sort_median(Deportista *deportistas, int low, int high, SortCriteria criteria, SortOrder order);
 #endif

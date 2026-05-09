@@ -5,9 +5,6 @@
 
 #include "print_format.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
 static void print_result_header_base(const char *title)
 {
     const char *safeTitle = (title != NULL && title[0] != '\0') ? title : "=== Resultado ===";

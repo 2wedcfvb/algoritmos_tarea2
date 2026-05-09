@@ -8,6 +8,7 @@
 
 #include "config.h"
 
+
 /**
  * @brief Ejecuta el flujo interactivo de ordenamiento.
  */

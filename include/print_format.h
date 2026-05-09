@@ -6,6 +6,9 @@
 #ifndef PRINT_FORMAT_H
 #define PRINT_FORMAT_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "deportista.h"
 #include "config.h"
 

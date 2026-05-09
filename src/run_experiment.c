@@ -51,16 +51,21 @@ static int load_data(Deportista **deportistas, int *count)
 }
 
 /**
+ * @brief Verifica si una opcion de algoritmo de ordenamiento es valida.
+ *
+ * @param value Opcion a verificar.
+ * @return int 1 si es valida, 0 en caso contrario.
+ */
+static int is_valid_sort_algorithm_option(int value)
+{
+    return (value >= INSERTION_SORT && value <= QUICK_SORT_MEDIAN);
+}
+
+/**
  * @brief Pregunta que ordenamiento usar.
  *
  * @return SortAlgorithm Opcion seleccionada.
  */
-static int is_valid_sort_algorithm_option(int value)
-{
-    return (value >= INSERTION_SORT && value <= COCKTAIL_SHAKER_SORT)
-        || (value >= QUICK_SORT_FIRST && value <= QUICK_SORT_MEDIAN);
-}
-
 static SortAlgorithm ask_sort_algorithm(void)
 {
     char option[16];
@@ -76,8 +81,8 @@ static SortAlgorithm ask_sort_algorithm(void)
         printf("  2) Bubble sort                 " DIM GRAY "[optimizado]" RESET "\n");
         printf("  3) Selection sort              " DIM GRAY "[optimizado]" RESET "\n");
         printf("  4) Cocktail shaker sort\n");
-        printf(DIM GRAY "  5) Merge sort                  [pendiente]\n" RESET);
-        printf(DIM GRAY "  6) Merge sort optimizado       [pendiente]\n" RESET);
+        printf("  5) Merge sort\n");
+        printf("  6) Merge sort optimizado       " DIM GRAY "[optimizado]" RESET "\n");
         printf("  7) Quick sort                  " DIM GRAY "[pivote primero]" RESET "\n");
         printf("  8) Quick sort                  " DIM GRAY "[pivote ultimo]" RESET "\n");
         printf("  9) Quick sort                  " DIM GRAY "[pivote aleatorio]" RESET "\n");
@@ -114,10 +119,10 @@ static SearchAlgorithm ask_search_algorithm(void)
 
         printf("  1) Busqueda secuencial            " DIM GRAY "[ID]" RESET "\n");
         printf("  2) Busqueda binaria               " DIM GRAY "[ID]" RESET "\n");
-        printf(DIM GRAY "  3) Busqueda binaria recursiva     [pendiente]\n" RESET);
+        printf("  3) Busqueda binaria recursiva     " DIM GRAY "[ID]" RESET "\n");
         printf("  4) Busqueda binaria por rango     " DIM GRAY "[PUNTAJE]" RESET "\n");
         printf("  5) Busqueda exponencial           " DIM GRAY "[ID]" RESET "\n");
-        printf(DIM GRAY "  6) Busqueda por interpolacion     [pendiente]\n\n" RESET);
+        printf("  6) Busqueda por interpolacion     " DIM GRAY "[ID]" RESET "\n\n");
 
         printf(BOLD "Opcion: " RESET);
 
@@ -139,54 +144,81 @@ static SearchAlgorithm ask_search_algorithm(void)
  * @param rankingAmount Cantidad de elementos a mostrar.
  * @param order Sentido de ordenamiento.
  */
-static void run_sort_operation(SortCriteria criteria, int rankingAmount, SortOrder order)
+static double run_sort_operation(SortCriteria criteria, int rankingAmount, SortOrder order)
 {
     Deportista *deportistas = NULL;
     SortAlgorithm algorithmOption = ask_sort_algorithm();
     int count = 0;
+
+    struct timespec startTime;
+    struct timespec endTime;
+    double elapsedSeconds = 0.0;
+    int hasElapsed = 0;
 
     if(rankingAmount < 0) {
         rankingAmount = 0;
     }
 
     if(load_data(&deportistas, &count) == 0) {
-        return;
+        return 0.0;
     }
+
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
 
     switch(algorithmOption) {
         case INSERTION_SORT:
             insertion_sort_deportistas(deportistas, count, criteria, order);
+            hasElapsed = 1;
             break;
         case BUBBLE_SORT:
             optimized_bubble_sort(deportistas, count, criteria, order);
+            hasElapsed = 1;
             break;
         case SELECTION_SORT:
             optimized_selection_sort(deportistas, count, criteria, order);
+            hasElapsed = 1;
             break;
         case COCKTAIL_SHAKER_SORT:
             cocktail_shaker_sort(deportistas, count, criteria, order);
+            hasElapsed = 1;
             break;
         case QUICK_SORT_FIRST:
             quick_sort_first(deportistas, 0, count - 1, criteria, order);
+            hasElapsed = 1;
             break;
         case QUICK_SORT_LAST:
             quick_sort_last(deportistas, 0, count - 1, criteria, order);
+            hasElapsed = 1;
             break;
         case QUICK_SORT_RANDOM:
             quick_sort_random(deportistas, 0, count - 1, criteria, order);
+            hasElapsed = 1;
             break;
         case QUICK_SORT_MEDIAN:
             quick_sort_median(deportistas, 0, count - 1, criteria, order);
+            hasElapsed = 1;
             break;
          case MERGE_SORT:
             merge_sort_deportistas(deportistas, count, criteria, order);
+            hasElapsed = 1;
             break;
         case OPTIMIZED_MERGE_SORT:
             merge_sort_optimized_deportistas(deportistas, count, criteria, order);
+            hasElapsed = 1;
             break;   
         default:
             print_error(ERROR_NOT_IMPLEMENTED, NULL);
             break;
+    }
+
+    clock_gettime(CLOCK_MONOTONIC, &endTime);
+
+    if(hasElapsed) {
+        elapsedSeconds = (double)(endTime.tv_sec - startTime.tv_sec)
+            + (double)(endTime.tv_nsec - startTime.tv_nsec) / 1e9;
+        if(elapsedSeconds < 0) {
+            elapsedSeconds = 0;
+        }
     }
 
     if(rankingAmount > count) {
@@ -198,11 +230,14 @@ static void run_sort_operation(SortCriteria criteria, int rankingAmount, SortOrd
         get_sort_criteria_name(criteria),
         get_sort_order_name(order),
         rankingAmount,
-        count
+        count,
+        elapsedSeconds
     );
     print_deportistas_array(deportistas, rankingAmount);
     print_sort_result_footer();
     free_deportistas_array(deportistas, count);
+
+    return elapsedSeconds;
 }
 
 /**
@@ -232,56 +267,69 @@ void search(int targetId)
     if(load_data(&deportistas, &count) == 0) {
         return;
     }
-
-    if(algorithmOption == SEQUENTIAL_SEARCH) {
-        algorithmLabel = "Secuencial";
-        fieldLabel = "ID";
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
-        index = sequential_search(deportistas, count, SEARCH_BY_ID, targetId);
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
-        hasElapsed = 1;
-    }
-    else if(algorithmOption == BINARY_SEARCH) {
-        algorithmLabel = "Binaria";
-        fieldLabel = "ID";
-        quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
-        index = binary_search(deportistas, count, SEARCH_BY_ID, targetId);
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
-        hasElapsed = 1;
-    }
-    else if(algorithmOption == EXPONENCIAL_SEARCH) {
-        algorithmLabel = "Exponencial";
-        fieldLabel = "ID";
-        quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
-        index = exponencial_search(deportistas, count, SEARCH_BY_ID, targetId);
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
-        hasElapsed = 1;
-    }
-    else if(algorithmOption == RANGE_BINARY_SEARCH) {
-        algorithmLabel = "Binaria por rango";
-        fieldLabel = "PUNTAJE";
-        isRangeResult = 1;
-        quick_sort_median(deportistas, 0, count - 1, SORT_BY_PUNTAJE, ASCENDING);
-        clock_gettime(CLOCK_MONOTONIC, &startTime);
-        range = range_binary_search(deportistas, count, SEARCH_BY_PUNTAJE, targetId);
-        clock_gettime(CLOCK_MONOTONIC, &endTime);
-        hasElapsed = 1;
-        if(range.start >= 0 && range.end >= range.start) {
-            matches = (range.end - range.start + 1);
-        }
-    }
-    else if(algorithmOption == RECURSIVE_BINARY_SEARCH || algorithmOption == INTERPOLATION_SEARCH) {
-        print_error(ERROR_NOT_IMPLEMENTED, NULL);
-        free_deportistas_array(deportistas, count);
-        return;
-    }
-    else {
-        print_error(ERROR_NOT_IMPLEMENTED, NULL);
-        free_deportistas_array(deportistas, count);
-        return;
-    }
+    switch(algorithmOption){
+        case SEQUENTIAL_SEARCH:
+            algorithmLabel = "Secuencial";
+            fieldLabel = "ID";
+            clock_gettime(CLOCK_MONOTONIC, &startTime);
+            index = sequential_search(deportistas, count, SEARCH_BY_ID, targetId);
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            hasElapsed = 1;
+            break;
+        case BINARY_SEARCH:
+            algorithmLabel = "Binaria";
+            fieldLabel = "ID";
+            quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
+            clock_gettime(CLOCK_MONOTONIC, &startTime);
+            index = binary_search(deportistas, count, SEARCH_BY_ID, targetId);
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            hasElapsed = 1;
+            break;
+        case EXPONENCIAL_SEARCH:
+            algorithmLabel = "Exponencial";
+            fieldLabel = "ID";
+            quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
+            clock_gettime(CLOCK_MONOTONIC, &startTime);
+            index = exponencial_search(deportistas, count, SEARCH_BY_ID, targetId);
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            hasElapsed = 1;
+            break;
+        case RANGE_BINARY_SEARCH:
+            algorithmLabel = "Binaria por rango";
+            fieldLabel = "PUNTAJE";
+            isRangeResult = 1;
+            quick_sort_median(deportistas, 0, count - 1, SORT_BY_PUNTAJE, ASCENDING);
+            clock_gettime(CLOCK_MONOTONIC, &startTime);
+            range = range_binary_search(deportistas, count, SEARCH_BY_PUNTAJE, targetId);
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            hasElapsed = 1;
+            if(range.start >= 0 && range.end >= range.start) {
+                matches = (range.end - range.start + 1);
+            }
+            break;
+        case INTERPOLATION_SEARCH:
+            algorithmLabel = "Interpolacion";
+            fieldLabel = "ID";
+            quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
+            clock_gettime(CLOCK_MONOTONIC, &startTime);
+            index = interpolation_search(deportistas, count, SEARCH_BY_ID, targetId);
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            hasElapsed = 1;
+            break;
+        case RECURSIVE_BINARY_SEARCH:
+            algorithmLabel = "Binaria recursiva";
+            fieldLabel = "ID";
+            quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
+            clock_gettime(CLOCK_MONOTONIC, &startTime);
+            index = recursive_binary_search(deportistas, 0, count - 1, SEARCH_BY_ID, targetId);
+            clock_gettime(CLOCK_MONOTONIC, &endTime);
+            hasElapsed = 1;
+            break;
+        default:
+             print_error(ERROR_NOT_IMPLEMENTED, NULL);
+             free_deportistas_array(deportistas, count);
+             return;
+    }   
 
     if(!isRangeResult) {
         if(index < 0) {
@@ -401,19 +449,5 @@ void run_experiment(void)
     SortCriteria criteria = ask_sort_criteria();
     SortOrder order = ask_sort_order();
 
-    struct timespec startTime;
-    struct timespec endTime;
-    clock_gettime(CLOCK_MONOTONIC, &startTime);
-
-    run_sort_operation(criteria, MAX_DATA, order);
-
-    clock_gettime(CLOCK_MONOTONIC, &endTime);
-
-    double elapsedSeconds = (double)(endTime.tv_sec - startTime.tv_sec)
-        + (double)(endTime.tv_nsec - startTime.tv_nsec) / 1e9;
-    if(elapsedSeconds < 0) {
-        elapsedSeconds = 0;
-    }
-
-    printf(DIM GRAY "Tiempo total: %.3f s\n" RESET, elapsedSeconds);
+    (void)run_sort_operation(criteria, MAX_DATA, order);
 }

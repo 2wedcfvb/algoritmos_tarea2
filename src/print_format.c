@@ -35,8 +35,29 @@ void print_deportistas_array(Deportista *deportistas, int rankingAmount)
         return;
     }
 
+    const int pageSize = (DEPORTISTAS_PAGE_SIZE > 0) ? DEPORTISTAS_PAGE_SIZE : rankingAmount;
+    int totalPages = (rankingAmount + pageSize - 1) / pageSize;
+    int currentPage = 1;
+
     for(int i = 0; i < rankingAmount; i++) {
         print_deportista(deportistas[i]);
+
+        int printedInPage = (i + 1) % pageSize;
+        int hasMore = (i + 1) < rankingAmount;
+        if(printedInPage == 0 && hasMore) {
+            char input[16];
+            printf(DIM GRAY "-- Pagina %d/%d (Enter=continuar, q=salir) --" RESET "\n", currentPage, totalPages);
+            fflush(stdout);
+
+            if(fgets(input, sizeof(input), stdin) == NULL) {
+                return;
+            }
+            if(input[0] == 'q' || input[0] == 'Q') {
+                return;
+            }
+
+            currentPage++;
+        }
     }
 }
 
@@ -134,7 +155,7 @@ void print_search_result_footer(void)
     print_result_footer_base();
 }
 
-void print_sort_result_header(const char *algorithmName, const char *fieldName, const char *orderName, int shown, int total)
+void print_sort_result_header(const char *algorithmName, const char *fieldName, const char *orderName, int shown, int total, double sortSeconds)
 {
     const char *safeAlgorithm = (algorithmName != NULL && algorithmName[0] != '\0') ? algorithmName : "(desconocido)";
     const char *safeField = (fieldName != NULL && fieldName[0] != '\0') ? fieldName : "(desconocido)";
@@ -144,7 +165,14 @@ void print_sort_result_header(const char *algorithmName, const char *fieldName, 
     printf(BOLD "Algoritmo: " RESET "%s\n", safeAlgorithm);
     printf(BOLD "Criterio:  " RESET "%s\n", safeField);
     printf(BOLD "Orden:     " RESET "%s\n", safeOrder);
-    printf(BOLD "Mostrando: " RESET "%d/%d\n", shown, total);
+    if(shown > DEPORTISTAS_PAGE_SIZE && DEPORTISTAS_PAGE_SIZE > 0) {
+        printf(BOLD "Mostrando: " RESET "%d/%d "RESET "\n", DEPORTISTAS_PAGE_SIZE, total, DEPORTISTAS_PAGE_SIZE);
+    } else {
+        printf(BOLD "Mostrando: " RESET "%d/%d\n", shown, total);
+    }
+    if(sortSeconds >= 0) {
+        printf(BOLD "Tiempo:    " RESET "%.6f s\n", sortSeconds);
+    }
     printf(DIM GRAY "%s\n" RESET, ASCII_HR);
 }
 

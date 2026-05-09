@@ -10,6 +10,11 @@
 #include <string.h>
 
 /**
+ * @brief Tamano maximo del subarreglo para usar insertion sort dentro del merge sort optimizado.
+ */
+#define MERGE_SORT_THRESHOLD 32
+
+/**
  * @brief Criterios disponibles para ordenar deportistas.
  */
 typedef enum {
@@ -32,16 +37,16 @@ typedef enum {
  * @brief Algoritmos de ordenamiento disponibles.
  */
 typedef enum {
-    INSERTION_SORT = 1,        /**< Insertion sort. */
-    BUBBLE_SORT = 2,           /**< Bubble sort optimizado. */
-    SELECTION_SORT = 3,        /**< Selection sort optimizado. */
-    COCKTAIL_SHAKER_SORT = 4,   /**< Cocktail shaker sort. */
-    MERGE_SORT = 5,             /**< Merge sort. */
-    OPTIMIZED_MERGE_SORT = 6,   /**< Merge sort optimizado. */
+    INSERTION_SORT = 1,          /**< Insertion sort. */
+    BUBBLE_SORT = 2,             /**< Bubble sort optimizado. */
+    SELECTION_SORT = 3,          /**< Selection sort optimizado. */
+    COCKTAIL_SHAKER_SORT = 4,    /**< Cocktail shaker sort. */
+    MERGE_SORT = 5,              /**< Merge sort. */
+    OPTIMIZED_MERGE_SORT = 6,    /**< Merge sort optimizado. */
     QUICK_SORT_FIRST = 7,        /**< Quick sort con pivote en la primera posición. */
     QUICK_SORT_LAST = 8,         /**< Quick sort con pivote en la última posición. */
     QUICK_SORT_RANDOM = 9,       /**< Quick sort con pivote aleatorio. */
-    QUICK_SORT_MEDIAN = 10      /**< Quick sort con pivote en la mediana*/
+    QUICK_SORT_MEDIAN = 10,      /**< Quick sort con pivote en la mediana*/
 } SortAlgorithm;
 
 /**

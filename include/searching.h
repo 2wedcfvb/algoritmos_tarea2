@@ -103,4 +103,5 @@ int exponencial_search(Deportista *deportistas, int length, SearchCriteria crite
  */
 int interpolation_search(Deportista *deportistas, int length, SearchCriteria criteria, int targetValue)
 
+;
 #endif

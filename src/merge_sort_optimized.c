@@ -1,5 +1,4 @@
-#include "merge_sort.h"
-#include <stdlib.h> 
+#include "sorting.h"
 
 static int should_precede(Deportista left, Deportista right, SortCriteria criteria, SortOrder order){
     int cmp = compare_by_criteria(left, right, criteria);

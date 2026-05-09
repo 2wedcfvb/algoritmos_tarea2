@@ -10,6 +10,18 @@
 #include "config.h"
 
 /**
+ * @name Paginacion
+ * @brief Parametros de paginacion para listados largos.
+ * @{ */
+#ifndef DEPORTISTAS_PAGE_SIZE
+/**
+ * @brief Cantidad de deportistas a imprimir por pagina.
+ */
+#define DEPORTISTAS_PAGE_SIZE 10
+#endif
+/** @} */
+
+/**
  * @name Secuencias ANSI (estilos)
  * @brief Macros de formato para terminales compatibles con ANSI.
  * @{
@@ -134,7 +146,7 @@ void print_search_result_header(const char *algorithmName, const char *fieldName
 
 void print_search_result_footer(void);
 
-void print_sort_result_header(const char *algorithmName, const char *fieldName, const char *orderName, int shown, int total);
+void print_sort_result_header(const char *algorithmName, const char *fieldName, const char *orderName, int shown, int total, double sortSeconds);
 
 void print_sort_result_footer(void);
 

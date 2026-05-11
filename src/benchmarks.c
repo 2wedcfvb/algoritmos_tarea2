@@ -148,12 +148,13 @@ double clock_to_seconds(clock_t start, clock_t end){
 }
 
 /**
- * @brief Ejecuta una iteración del benchmark de búsqueda en el peor caso.
+ * @brief Ejecuta una iteración del benchmark de búsqueda.
  *
  * @param algoIndex Índice del algoritmo a ejecutar.
  * @param baseArray Arreglo base de deportistas.
  * @param baseCount Cantidad de elementos en el arreglo base.
  * @param n Cantidad de elementos a buscar.
+ * @param benchmarkCase Tipo de caso (mejor, promedio, peor).
  * @param out Archivo de salida para escribir resultados.
  * @param intervalIndex Índice del intervalo actual.
  * @param intervalCount Cantidad total de intervalos.
@@ -161,17 +162,18 @@ double clock_to_seconds(clock_t start, clock_t end){
  * @param repeatCount Cantidad total de repeticiones.
  * @return double Tiempo en segundos.
  */
-double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int baseCount, int n, FILE *out, int intervalIndex, int intervalCount, int repeatIndex, int repeatCount){
+double run_search_once(int algoIndex, Deportista *baseArray, int baseCount, int n, BenchmarkCase benchmarkCase, FILE *out, int intervalIndex, int intervalCount, int repeatIndex, int repeatCount){
     Deportista *work;
     int target;
     clock_t start;
     clock_t end;
+    const char *caseName = get_case_name(benchmarkCase);
 
     if(algoIndex < 0 || algoIndex >= SEARCH_BENCH_ALGO_COUNT) {
         return 0.0;
     }
 
-    progress_update_line("search", intervalIndex, intervalCount, n, repeatIndex, repeatCount, SEARCH_BENCH_ALGOS[algoIndex].stage);
+    progress_update_line("search", intervalIndex, intervalCount, n, repeatIndex, repeatCount, caseName);
 
     work = clone_deportistas_array(baseArray, n);
     if(work == NULL) {
@@ -180,7 +182,7 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
 
     switch(algoIndex) {
         case 0: // secuencial
-            target = prepare_search_worst_case(work, n, SEQUENTIAL_SEARCH);
+            target = prepare_search_case(work, n, SEQUENTIAL_SEARCH, benchmarkCase);
             if(target < 0) {
                 free_deportistas_array(work, n);
                 handle_benchmark_memory_error(baseArray, baseCount, out);
@@ -191,7 +193,7 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
             break;
 
         case 1: // binaria
-            target = prepare_search_worst_case(work, n, BINARY_SEARCH);
+            target = prepare_search_case(work, n, BINARY_SEARCH, benchmarkCase);
             if(target < 0) {
                 free_deportistas_array(work, n);
                 handle_benchmark_memory_error(baseArray, baseCount, out);
@@ -202,7 +204,7 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
             break;
 
         case 2: // binaria rec
-            target = prepare_search_worst_case(work, n, RECURSIVE_BINARY_SEARCH);
+            target = prepare_search_case(work, n, RECURSIVE_BINARY_SEARCH, benchmarkCase);
             if(target < 0) {
                 free_deportistas_array(work, n);
                 handle_benchmark_memory_error(baseArray, baseCount, out);
@@ -213,7 +215,7 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
             break;
 
         case 3: // exponencial
-            target = prepare_search_worst_case(work, n, EXPONENCIAL_SEARCH);
+            target = prepare_search_case(work, n, EXPONENCIAL_SEARCH, benchmarkCase);
             if(target < 0) {
                 free_deportistas_array(work, n);
                 handle_benchmark_memory_error(baseArray, baseCount, out);
@@ -224,7 +226,7 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
             break;
 
         case 4: // interpolacion
-            target = prepare_search_worst_case(work, n, INTERPOLATION_SEARCH);
+            target = prepare_search_case(work, n, INTERPOLATION_SEARCH, benchmarkCase);
             if(target < 0) {
                 free_deportistas_array(work, n);
                 handle_benchmark_memory_error(baseArray, baseCount, out);
@@ -236,7 +238,14 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
 
         case 5: // rango puntaje
             quick_sort_median(work, 0, n - 1, SORT_BY_PUNTAJE, ASCENDING);
-            target = get_missing_target_score(work, n);
+            if(benchmarkCase == BENCHMARK_CASE_WORST) {
+                target = get_missing_target_score(work, n);
+            } else if(benchmarkCase == BENCHMARK_CASE_AVERAGE) {
+                int randomIdx = rand() % n;
+                target = (int)work[randomIdx]->puntaje;
+            } else { // BEST
+                target = (int)work[0]->puntaje;
+            }
             if(target < 0) {
                 free_deportistas_array(work, n);
                 handle_benchmark_memory_error(baseArray, baseCount, out);
@@ -254,6 +263,24 @@ double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int base
 
     free_deportistas_array(work, n);
     return clock_to_seconds(start, end);
+}
+
+/**
+ * @brief Ejecuta una iteración del benchmark de búsqueda en el peor caso
+ *
+ * @param algoIndex Índice del algoritmo a ejecutar.
+ * @param baseArray Arreglo base de deportistas.
+ * @param baseCount Cantidad de elementos en el arreglo base.
+ * @param n Cantidad de elementos a buscar.
+ * @param out Archivo de salida para escribir resultados.
+ * @param intervalIndex Índice del intervalo actual.
+ * @param intervalCount Cantidad total de intervalos.
+ * @param repeatIndex Índice de la repetición actual.
+ * @param repeatCount Cantidad total de repeticiones.
+ * @return double Tiempo en segundos.
+ */
+double run_search_worst_case_once(int algoIndex, Deportista *baseArray, int baseCount, int n, FILE *out, int intervalIndex, int intervalCount, int repeatIndex, int repeatCount){
+    return run_search_once(algoIndex, baseArray, baseCount, n, BENCHMARK_CASE_WORST, out, intervalIndex, intervalCount, repeatIndex, repeatCount);
 }
 
 /**
@@ -350,6 +377,37 @@ int get_missing_target_id(Deportista *deportistas, int count)
 }
 
 /**
+ * @brief Obtiene un ID existente en una posicion aleatoria (caso promedio).
+ *
+ * @param deportistas Arreglo de deportistas.
+ * @param count Cantidad de elementos.
+ * @return int ID existente en el arreglo.
+ */
+int get_random_existing_target_id(Deportista *deportistas, int count)
+{
+    if(deportistas == NULL || count <= 0 || deportistas[0] == NULL) {
+        return -1;
+    }
+    int randomIdx = rand() % count;
+    return deportistas[randomIdx]->id;
+}
+
+/**
+ * @brief Obtiene el primer ID del arreglo (caso mejor).
+ *
+ * @param deportistas Arreglo de deportistas.
+ * @param count Cantidad de elementos.
+ * @return int Primer ID del arreglo.
+ */
+int get_first_target_id(Deportista *deportistas, int count)
+{
+    if(deportistas == NULL || count <= 0 || deportistas[0] == NULL) {
+        return -1;
+    }
+    return deportistas[0]->id;
+}
+
+/**
  * @brief Busca un puntaje inexistente (en int) para medir el peor caso de busqueda por rango.
  *
  * @param deportistas Arreglo de deportistas.
@@ -375,14 +433,15 @@ int get_missing_target_score(Deportista *deportistas, int count)
 }
 
 /**
- * @brief Prepara el arreglo para medir el peor caso de busqueda.
+ * @brief Prepara el arreglo para medir un caso específico de busqueda.
  *
  * @param deportistas Arreglo a preparar.
  * @param count Cantidad de elementos.
  * @param algorithm Algoritmo de busqueda a ejecutar.
- * @return int ID ausente para provocar el peor caso.
+ * @param benchmarkCase Tipo de caso (mejor, promedio, peor).
+ * @return int ID a buscar.
  */
-int prepare_search_worst_case(Deportista *deportistas, int count, SearchAlgorithm algorithm)
+int prepare_search_case(Deportista *deportistas, int count, SearchAlgorithm algorithm, BenchmarkCase benchmarkCase)
 {
     if(deportistas == NULL || count <= 0) {
         return -1;
@@ -392,7 +451,29 @@ int prepare_search_worst_case(Deportista *deportistas, int count, SearchAlgorith
         quick_sort_median(deportistas, 0, count - 1, SORT_BY_ID, ASCENDING);
     }
 
-    return get_missing_target_id(deportistas, count);
+    switch(benchmarkCase) {
+        case BENCHMARK_CASE_BEST:
+            return get_first_target_id(deportistas, count);
+        case BENCHMARK_CASE_AVERAGE:
+            return get_random_existing_target_id(deportistas, count);
+        case BENCHMARK_CASE_WORST:
+            return get_missing_target_id(deportistas, count);
+        default:
+            return -1;
+    }
+}
+
+/**
+ * @brief Prepara el arreglo para medir el peor caso de busqueda (mantiene compatibilidad).
+ *
+ * @param deportistas Arreglo a preparar.
+ * @param count Cantidad de elementos.
+ * @param algorithm Algoritmo de busqueda a ejecutar.
+ * @return int ID ausente para provocar el peor caso.
+ */
+int prepare_search_worst_case(Deportista *deportistas, int count, SearchAlgorithm algorithm)
+{
+    return prepare_search_case(deportistas, count, algorithm, BENCHMARK_CASE_WORST);
 }
 
 /**
@@ -551,56 +632,80 @@ void run_search_benchmark(){
     int selectedSearchIdx[SEARCH_BENCH_ALGO_COUNT];
     int selectedSearchCount = build_selected_indices(selectedSearch, SEARCH_BENCH_ALGO_COUNT, selectedSearchIdx, SEARCH_BENCH_ALGO_COUNT);
 
-    // Escribir encabezado CSV (solo lo seleccionado)
+    // Escribir encabezado CSV (promedio y peor para cada algoritmo)
     fprintf(out, "n");
     for(int k = 0; k < selectedSearchCount; k++) {
         int idx = selectedSearchIdx[k];
-        fprintf(out, ",%s", SEARCH_BENCH_ALGOS[idx].csvCol);
+        fprintf(out, ",promedio_%s", SEARCH_BENCH_ALGOS[idx].csvCol);
+    }
+    for(int k = 0; k < selectedSearchCount; k++) {
+        int idx = selectedSearchIdx[k];
+        fprintf(out, ",peor_%s", SEARCH_BENCH_ALGOS[idx].csvCol);
     }
     fprintf(out, "\n");
 
     // Imprimir en consola el encabezado del benchmark
-    printf(BOLD_BLUE "\n=== Search benchmark (peor caso) ===\n" RESET);
+    printf(BOLD_BLUE "\n=== Search benchmark ===\n" RESET);
     printf(DIM "Archivo: %s | intervalos: %d | repeticiones: %d\n\n" RESET, SEARCH_BENCHMARK_ROUTE, intervals, EXPERIMENT_REPEATS);
-    printf("n");
+    printf("n \t | caso");
     for(int k = 0; k < selectedSearchCount; k++) {
         int idx = selectedSearchIdx[k];
-        printf(" \t | \t %s(s)", searchLabels[idx]);
+        printf(" \t | %s(s)", searchLabels[idx]);
     }
     printf("\n");
-    printf(ASCII_HR "\n");
+    printf(ASCII_HR_WIDE "\n");
     printf(HIDE_CURSOR);
 
     // Inicio del benchmark
     for(int i = 0; i < intervals; i++) {
         int n = (i == intervals - 1) ? count : (stepSize * (i + 1));
-        double totals[SEARCH_BENCH_ALGO_COUNT] = {0.0};
-        double averages[SEARCH_BENCH_ALGO_COUNT] = {0.0};
+        double caseTotals[2][SEARCH_BENCH_ALGO_COUNT] = {{0.0}};
+        int caseIndices[2] = {BENCHMARK_CASE_AVERAGE, BENCHMARK_CASE_WORST};
 
-        for(int j = 0; j < EXPERIMENT_REPEATS; j++) {
+        // Iterar sobre los 2 casos: promedio y peor
+        for(int caseIdx = 0; caseIdx < 2; caseIdx++) {
+            int caseIndex = caseIndices[caseIdx];
+            BenchmarkCase benchmarkCase = (BenchmarkCase)caseIndex;
+
+            for(int r = 0; r < EXPERIMENT_REPEATS; r++) {
+                for(int k = 0; k < selectedSearchCount; k++) {
+                    int algoIdx = selectedSearchIdx[k];
+                    caseTotals[caseIdx][algoIdx] += run_search_once(algoIdx, baseArray, count, n, benchmarkCase, out, i + 1, intervals, r + 1, EXPERIMENT_REPEATS);
+                }
+            }
+
+            // Promediar los tiempos del caso
             for(int k = 0; k < selectedSearchCount; k++) {
                 int algoIdx = selectedSearchIdx[k];
-                totals[algoIdx] += run_search_worst_case_once(algoIdx, baseArray, count, n, out, i + 1, intervals, j + 1, EXPERIMENT_REPEATS);
+                caseTotals[caseIdx][algoIdx] /= EXPERIMENT_REPEATS;
             }
         }
 
-        for(int k = 0; k < selectedSearchCount; k++) {
-            int algoIdx = selectedSearchIdx[k];
-            averages[algoIdx] = totals[algoIdx] / EXPERIMENT_REPEATS;
-        }
-
+        // Escribir en CSV: n, promedio_algo1, promedio_algo2, ..., peor_algo1, peor_algo2, ...
         fprintf(out, "%d", n);
         for(int k = 0; k < selectedSearchCount; k++) {
             int idx = selectedSearchIdx[k];
-            fprintf(out, ",%.10f", averages[idx]);
+            fprintf(out, ",%.10f", caseTotals[0][idx]);
+        }
+        for(int k = 0; k < selectedSearchCount; k++) {
+            int idx = selectedSearchIdx[k];
+            fprintf(out, ",%.10f", caseTotals[1][idx]);
         }
         fprintf(out, "\n");
 
         progress_clear_line();
-        printf("%d", n);
+
+        printf("%d \t | %s", n, get_case_name(BENCHMARK_CASE_AVERAGE));
         for(int k = 0; k < selectedSearchCount; k++) {
             int idx = selectedSearchIdx[k];
-            printf(" \t | \t %.10f", averages[idx]);
+            printf(" \t | %.10f", caseTotals[0][idx]);
+        }
+        printf("\n");
+
+        printf("%d \t | %s", n, get_case_name(BENCHMARK_CASE_WORST));
+        for(int k = 0; k < selectedSearchCount; k++) {
+            int idx = selectedSearchIdx[k];
+            printf(" \t | %.10f", caseTotals[1][idx]);
         }
         printf("\n");
     }

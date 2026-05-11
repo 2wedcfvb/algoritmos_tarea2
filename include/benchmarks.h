@@ -35,12 +35,12 @@ typedef struct {
 
 /* Definiciones de los algoritmos disponibles para benchmarks */
 const SearchBenchAlgoDef SEARCH_BENCH_ALGOS[SEARCH_BENCH_ALGO_COUNT] = {
-    {"Secuencial (ID)", "peor_secuencial_s", "peor secuencial"},
-    {"Binaria (ID)", "peor_binaria_s", "peor binaria"},
-    {"Binaria recursiva (ID)", "peor_binaria_rec_s", "peor binaria rec"},
-    {"Exponencial (ID)", "peor_exponencial_s", "peor exponencial"},
-    {"Interpolacion (ID)", "peor_interpolacion_s", "peor interpolacion"},
-    {"Binaria por rango (PUNTAJE)", "peor_rango_puntaje_s", "peor rango puntaje"}
+    {"Secuencial (ID)", "secuencial_s", "secuencial"},
+    {"Binaria (ID)", "binaria_s", "binaria"},
+    {"Binaria recursiva (ID)", "binaria_rec_s", "binaria recursiva"},
+    {"Exponencial (ID)", "exponencial_s", "exponencial"},
+    {"Interpolacion (ID)", "interpolacion_s", "interpolacion"},
+    {"Binaria por rango (PUNTAJE)", "rango_puntaje_s", "rango puntaje"}
 };
 
 /* Definiciones de los algoritmos disponibles para benchmarks */
@@ -168,6 +168,52 @@ int get_missing_target_score(Deportista *deportistas, int count);
  * @return int ID ausente para provocar el peor caso.
  */
 int prepare_search_worst_case(Deportista *deportistas, int count, SearchAlgorithm algorithm);
+
+/**
+ * @brief Obtiene un ID existente en una posicion aleatoria (caso promedio).
+ *
+ * @param deportistas Arreglo de deportistas.
+ * @param count Cantidad de elementos.
+ * @return int ID existente en el arreglo.
+ */
+int get_random_existing_target_id(Deportista *deportistas, int count);
+
+/**
+ * @brief Obtiene el primer ID del arreglo (caso mejor).
+ *
+ * @param deportistas Arreglo de deportistas.
+ * @param count Cantidad de elementos.
+ * @return int Primer ID del arreglo.
+ */
+int get_first_target_id(Deportista *deportistas, int count);
+
+/**
+ * @brief Prepara el arreglo para medir un caso especifico de busqueda.
+ *
+ * @param deportistas Arreglo a preparar.
+ * @param count Cantidad de elementos.
+ * @param algorithm Algoritmo de busqueda a ejecutar.
+ * @param benchmarkCase Tipo de caso (mejor, promedio, peor).
+ * @return int ID a buscar.
+ */
+int prepare_search_case(Deportista *deportistas, int count, SearchAlgorithm algorithm, BenchmarkCase benchmarkCase);
+
+/**
+ * @brief Ejecuta una iteracion del benchmark de busqueda.
+ *
+ * @param algoIndex Indice del algoritmo a ejecutar.
+ * @param baseArray Arreglo base de deportistas.
+ * @param baseCount Cantidad de elementos en el arreglo base.
+ * @param n Cantidad de elementos a buscar.
+ * @param benchmarkCase Tipo de caso (mejor, promedio, peor).
+ * @param out Archivo de salida para escribir resultados.
+ * @param intervalIndex Indice del intervalo actual.
+ * @param intervalCount Cantidad total de intervalos.
+ * @param repeatIndex Indice de la repeticion actual.
+ * @param repeatCount Cantidad total de repeticiones.
+ * @return double Tiempo en segundos.
+ */
+double run_search_once(int algoIndex, Deportista *baseArray, int baseCount, int n, BenchmarkCase benchmarkCase, FILE *out, int intervalIndex, int intervalCount, int repeatIndex, int repeatCount);
 
 /**
  * @brief Duplica una cadena para los benchmarks.

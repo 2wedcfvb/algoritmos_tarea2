@@ -18,6 +18,7 @@
 #include "print_format.h"
 #include "searching.h"
 #include "sorting.h"
+#include "kth_athlete.h"
 
 /**
  * @brief Carga el CSV actual en un arreglo.
@@ -371,13 +372,75 @@ void search(int targetId)
 }
 
 /**
- * @brief Muestra el ranking de los mejores N deportistas segun puntaje.
+ * @brief Obtiene los mejores N deportistas por puntaje usando Quick Select.
+ *
+ * Llama a get_kth_athlete N veces para obtener cada puesto sin ordenar
+ * el arreglo completo.
+ *
+ * @param deportistas Arreglo de deportistas.
+ * @param count Cantidad total de deportistas.
+ * @param n Cantidad de puestos a obtener.
+ * @return Deportista* Arreglo con los N mejores (debe liberarse con free),
+ *                     o NULL si falla la reserva de memoria.
+ */
+static Deportista *get_top_n_athletes(Deportista *deportistas, int count, int n)
+{
+    Deportista *ranking = malloc(n * sizeof(Deportista));
+    if (ranking == NULL) {
+        return NULL;
+    }
+
+    for (int i = 0; i < n; i++) {
+        ranking[i] = get_kth_athlete(deportistas, count, i + 1);
+    }
+
+    return ranking;
+}
+
+/**
+ * @brief Muestra el ranking de los mejores N deportistas por puntaje.
  *
  * @param rankingAmount Cantidad de deportistas a mostrar.
  */
 void show_ranking(int rankingAmount)
 {
-    run_sort_operation(SORT_BY_PUNTAJE, rankingAmount, DESCENDING);
+    int count = 0;
+    Deportista *deportistas = load_deportistas_array(&count);
+
+    if (deportistas == NULL) {
+        print_error(ERROR_MEMORY_ALLOCATION_FAILED, "No se pudo cargar CSV");
+        return;
+    }
+    if (count == 0) {
+        print_error(ERROR_NO_DATA_LOADED, NULL);
+        free_deportistas_array(deportistas, count);
+        return;
+    }
+
+    if (rankingAmount > count) {
+        rankingAmount = count;
+    }
+
+    struct timespec startTime, endTime;
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
+    Deportista *ranking = get_top_n_athletes(deportistas, count, rankingAmount);
+    clock_gettime(CLOCK_MONOTONIC, &endTime);
+
+    if (ranking == NULL) {
+        print_error(ERROR_MEMORY_ALLOCATION_FAILED, "No se pudo reservar memoria para el ranking");
+        free_deportistas_array(deportistas, count);
+        return;
+    }
+
+    double elapsed = (double)(endTime.tv_sec - startTime.tv_sec)
+                   + (double)(endTime.tv_nsec - startTime.tv_nsec) / 1e9;
+
+    print_sort_result_header("Quick Select", "Puntaje", "Descendente", rankingAmount, count, elapsed);
+    print_deportistas_array(ranking, rankingAmount);
+    print_sort_result_footer();
+
+    free(ranking);
+    free_deportistas_array(deportistas, count);
 }
 
 /**

@@ -374,25 +374,34 @@ void search(int targetId)
 /**
  * @brief Obtiene los mejores N deportistas por puntaje usando Quick Select.
  *
- * Llama a get_kth_athlete N veces para obtener cada puesto sin ordenar
- * el arreglo completo.
+ * Usa Quick Select para dejar los mejores N deportistas en el prefijo del
+ * arreglo y luego ordena solo ese tramo para mostrar un ranking correcto.
  *
  * @param deportistas Arreglo de deportistas.
  * @param count Cantidad total de deportistas.
  * @param n Cantidad de puestos a obtener.
- * @return Deportista* Arreglo con los N mejores (debe liberarse con free),
- *                     o NULL si falla la reserva de memoria.
+ * @return Deportista* Arreglo con los N mejores (debe liberarse con free), o NULL si falla la reserva de memoria.
  */
 static Deportista *get_top_n_athletes(Deportista *deportistas, int count, int n)
 {
-    Deportista *ranking = malloc(n * sizeof(Deportista));
+    Deportista *ranking = NULL;
+
+    if (deportistas == NULL || count <= 0 || n <= 0) {
+        return NULL;
+    }
+
+    get_kth_element(deportistas, count, n - 1, SORT_BY_PUNTAJE, DESCENDING);
+
+    if (n > 1) {
+        quick_sort_median(deportistas, 0, n - 1, SORT_BY_PUNTAJE, DESCENDING);
+    }
+
+    ranking = malloc((size_t)n * sizeof(Deportista));
     if (ranking == NULL) {
         return NULL;
     }
 
-    for (int i = 0; i < n; i++) {
-        ranking[i] = get_kth_athlete(deportistas, count, i + 1);
-    }
+    memcpy(ranking, deportistas, (size_t)n * sizeof(Deportista));
 
     return ranking;
 }
@@ -411,6 +420,7 @@ void show_ranking(int rankingAmount)
         print_error(ERROR_MEMORY_ALLOCATION_FAILED, "No se pudo cargar CSV");
         return;
     }
+    
     if (count == 0) {
         print_error(ERROR_NO_DATA_LOADED, NULL);
         free_deportistas_array(deportistas, count);

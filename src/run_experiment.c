@@ -453,6 +453,68 @@ void show_ranking(int rankingAmount)
     free_deportistas_array(deportistas, count);
 }
 
+void puntaje_range(int puntaje_init, int puntaje_end){
+    if (puntaje_init < 0 || puntaje_end < 0){
+        print_error(ERROR_INVALID_DATA_AMOUNT, "El puntaje no puede ser negativo");
+        return;
+    }
+
+    if(puntaje_init > puntaje_end) {
+        int tmp = puntaje_init;
+        puntaje_init = puntaje_end;
+        puntaje_end = tmp;
+    }
+
+    int count = 0;
+    Deportista *deportistas = load_deportistas_array(&count);
+
+    if (deportistas == NULL) {
+        print_error(ERROR_MEMORY_ALLOCATION_FAILED, "No se pudo cargar CSV");
+        return;
+    }
+    
+    if (count == 0) {
+        print_error(ERROR_NO_DATA_LOADED, NULL);
+        free_deportistas_array(deportistas, count);
+        return;
+    }
+
+    struct timespec startTime, endTime;
+    clock_gettime(CLOCK_MONOTONIC, &startTime);
+    quick_sort_median(deportistas, 0, count - 1, SORT_BY_PUNTAJE, ASCENDING);
+
+    int firstMatch = range_binary_search_first_at_least(deportistas, count, puntaje_init);
+    int lastMatch = range_binary_search_last_at_most(deportistas, count, puntaje_end);
+
+    clock_gettime(CLOCK_MONOTONIC, &endTime);
+
+    if(firstMatch < 0 || lastMatch < 0 || firstMatch > lastMatch) {
+        char detail[64];
+        snprintf(detail, sizeof(detail), "Puntaje entre %d y %d", puntaje_init, puntaje_end);
+        print_error(ERROR_DEPORTISTA_NOT_FOUND, detail);
+        free_deportistas_array(deportistas, count);
+        return;
+    }
+
+    int matches = lastMatch - firstMatch + 1;
+
+    double elapsed = (double)(endTime.tv_sec - startTime.tv_sec)
+                   + (double)(endTime.tv_nsec - startTime.tv_nsec) / 1e9;
+
+    print_search_result_header("Deportistas por puntaje", "Rango de puntaje", puntaje_init, matches);
+    printf(BOLD "Rango:     " RESET "%d - %d\n", puntaje_init, puntaje_end);
+    printf(BOLD "Indices:   " RESET "%d - %d\n", firstMatch, lastMatch);
+    for(int i = firstMatch; i <= lastMatch; i++) {
+        print_deportista(deportistas[i]);
+    }
+    print_search_result_footer();
+
+    printf(DIM GRAY "Tiempo total: %f s\n" RESET, elapsed);
+
+    free_deportistas_array(deportistas, count);
+}
+
+
 /**
  * @brief Pregunta por el campo de ordenamiento.
  *
@@ -522,5 +584,6 @@ void run_experiment(void)
     SortCriteria criteria = ask_sort_criteria();
     SortOrder order = ask_sort_order();
 
-    (void)run_sort_operation(criteria, MAX_DATA, order);
+    run_sort_operation(criteria, MAX_DATA, order);
 }
+

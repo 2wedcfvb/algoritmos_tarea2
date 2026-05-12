@@ -82,6 +82,10 @@ int recursive_binary_search(Deportista *deportistas, int left, int right, Search
  */
 Range range_binary_search(Deportista *deportistas, int length, SearchCriteria criteria, int targetId);
 
+int range_binary_search_first_at_least(Deportista *deportistas, int length, int targetScore);
+
+int range_binary_search_last_at_most(Deportista *deportistas, int length, int targetScore);
+
 /**
  * @brief Busca un deportista por ID usando busqueda exponencial.
  *

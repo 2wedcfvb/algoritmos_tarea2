@@ -97,3 +97,59 @@ Range range_binary_search(Deportista *deportistas, int length, SearchCriteria cr
 
     return result;
 }
+
+int range_binary_search_first_at_least(Deportista *deportistas, int length, int targetScore)
+{
+    int left = 0;
+    int right = length - 1;
+    int result = -1;
+
+    if(deportistas == NULL || length <= 0) {
+        return -1;
+    }
+
+    while(left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if(deportistas[mid] == NULL) {
+            return -1;
+        }
+
+        if((int)deportistas[mid]->puntaje >= targetScore) {
+            result = mid;
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return result;
+}
+
+int range_binary_search_last_at_most(Deportista *deportistas, int length, int targetScore)
+{
+    int left = 0;
+    int right = length - 1;
+    int result = -1;
+
+    if(deportistas == NULL || length <= 0) {
+        return -1;
+    }
+
+    while(left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if(deportistas[mid] == NULL) {
+            return -1;
+        }
+
+        if((int)deportistas[mid]->puntaje <= targetScore) {
+            result = mid;
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return result;
+}

@@ -28,4 +28,12 @@ void search(int targetId);
  */
 void show_ranking(int rankingAmount);
 
+/**
+ * @brief Muestra los deportistas dentro de un rango de puntaje.
+ *
+ * @param puntaje_init Puntaje inicial.
+ * @param puntaje_end Puntaje final.
+ */
+void puntaje_range(int puntaje_init, int puntaje_end);
+
 #endif

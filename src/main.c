@@ -34,7 +34,7 @@ int main(int argc, char **argv)
         return EXIT_SUCCESS;
     }
 
-    while((opt = getopt(argc, argv, "hg:tr:bsi:k:n")) != -1) {
+    while((opt = getopt(argc, argv, "hg:tr:bsi:k:np:")) != -1) {
         switch(opt) {
             /* ------------ ayuda -----------------*/
             case 'h':
@@ -96,6 +96,31 @@ int main(int argc, char **argv)
                 show_kth_athlete(atoi(optarg));
                 break;
             
+            /** ---------- puntaje entre rangos -------------------- */
+            case 'p':
+            {
+                char *endFirst = NULL;
+                char *endSecond = NULL;
+                long puntajeInit;
+                long puntajeEnd;
+
+                if(optind >= argc || argv[optind] == NULL) {
+                    print_error(ERROR_UNKNOWN_OPTION, "-p requiere 2 parametros");
+                    return EXIT_FAILURE;
+                }
+
+                puntajeInit = strtol(optarg, &endFirst, 10);
+                puntajeEnd = strtol(argv[optind], &endSecond, 10);
+
+                if((endFirst != NULL && *endFirst != '\0') || (endSecond != NULL && *endSecond != '\0')) {
+                    print_error(ERROR_UNKNOWN_OPTION, "-p requiere 2 parametros enteros");
+                    return EXIT_FAILURE;
+                }
+
+                puntaje_range((int)puntajeInit, (int)puntajeEnd);
+                optind++;
+                break;
+            }
             /** ----------- opción desconocida --------------------- */
             case '?':
             {

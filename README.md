@@ -1,4 +1,4 @@
-# Algorithm Analyzer
+# Algorithm Analyzer V2
 
 ![C](https://img.shields.io/badge/C-C11-blue) ![Build](https://img.shields.io/badge/build-make-success) ![LaTeX](https://img.shields.io/badge/docs-LaTeX-9cf) ![Doxygen](https://img.shields.io/badge/docs-Doxygen-blue) ![Gnuplot](https://img.shields.io/badge/plots-gnuplot-orange)
 
@@ -7,10 +7,13 @@ Proyecto en C para generar datos de deportistas, ejecutar busquedas y ordenamien
 ## Funcionalidad
 
 - Generacion de un CSV con deportistas aleatorios.
-- Busqueda por ID con busqueda secuencial o binaria.
+- Busqueda por ID con busqueda secuencial, binaria, binaria recursiva, exponencial e interpolacion.
+- Busqueda de deportistas por rango de puntaje.
 - Ordenamiento interactivo por ID, puntaje, competencias, nombre o equipo.
 - Ranking de los mejores deportistas por puntaje.
+- Consulta del k-esimo deportista por puntaje.
 - Benchmarks de busqueda y ordenamiento con exportacion a CSV.
+- Benchmark de seleccion.
 - Generacion de graficos a partir de los resultados con `gnuplot`.
 
 ## Requisitos
@@ -34,14 +37,30 @@ El ejecutable queda en `build/algorithm_analyzer.out`.
 ./build/algorithm_analyzer.out -h
 ./build/algorithm_analyzer.out -g 1000
 ./build/algorithm_analyzer.out -t
-./build/algorithm_analyzer.out -id 42
+./build/algorithm_analyzer.out -i 42
 ./build/algorithm_analyzer.out -r 10
+./build/algorithm_analyzer.out -k 3
+./build/algorithm_analyzer.out -p 50 80
 ./build/algorithm_analyzer.out -b
 ./build/algorithm_analyzer.out -s
+./build/algorithm_analyzer.out -n
 make plot
 ```
 
-Tambien se mantiene el alias `-id [valor]` por compatibilidad con el flujo previo del proyecto.
+Los parametros `-p <min> <max>` muestran los deportistas con puntaje dentro de ese rango.
+
+Comandos disponibles:
+
+- `-h`: muestra la ayuda.
+- `-g <cantidad>`: genera datos aleatorios y los guarda en el CSV.
+- `-t`: ejecuta el flujo interactivo de ordenamiento.
+- `-i <id>`: busca un deportista por ID.
+- `-r <cantidad>`: muestra el top N por puntaje.
+- `-k <k>`: muestra el k-esimo deportista por puntaje.
+- `-p <min> <max>`: muestra deportistas con puntaje dentro de ese rango.
+- `-b`: ejecuta benchmark de busqueda.
+- `-s`: ejecuta benchmark de ordenamiento.
+- `-n`: ejecuta benchmark de seleccion.
 
 ## Estructura
 
@@ -60,19 +79,6 @@ doxygen Doxyfile
 ```
 
 La salida HTML queda en `docs/doxygen/html/index.html`.
-
-
-## Criterios de codificacion aplicados
-
-El codigo del repositorio fue alineado con las normas adjuntas:
-
-- Variables en `camelCase`.
-- Funciones en `snake_case`.
-- Constantes y macros en `SCREAMING_SNAKE_CASE`.
-- Llave de apertura de funciones en la linea inferior al prototipo.
-- Llaves en bloques de control siempre presentes, incluso si hay una sola sentencia.
-- Errores centralizados mediante `print_error(...)` y un conjunto documentado de codigos.
-- Comentarios y textos del proyecto en ASCII para evitar problemas de compatibilidad por tildes o `enie`.
 
 ## Codigos de error
 
@@ -98,10 +104,9 @@ Los mensajes de error visibles para el usuario se centralizan en `print_error(..
 - `run_experiment.c`: contiene el flujo interactivo para ordenar, buscar y mostrar rankings.
 - `benchmarks.c`: mide tiempos de ejecucion y exporta resultados.
 - `sorting.c` y algoritmos asociados: encapsulan comparacion y ordenamiento.
-- `sequential_search.c` y `binary_search.c`: implementan las busquedas por ID.
+- `sequential_search.c`, `binary_search.c`, `recursive_binary_search.c`, `range_binary_search.c`, `exponencial_search.c` e `interpolation_search.c`: implementan las busquedas del programa.
 
 ## Avisos
 
 - Los archivos del informe en LaTeX se conservan aparte del flujo principal del programa.
 - Los CSV y PNG generados pueden cambiar al ejecutar benchmarks o generar nuevos datos.
-- Se recomienda realizar una generación de no más de 10.000 datos, para apreciar correctamente los gráficos, ya que este es el punto ideal para ver diferencias y a la vez que no se demore en realizar los benchmarks (el programa fue probado con hasta 100.000 datos generados aleatoriamente, pero para conseguir resultados hay que esperar un tiempo de más de 30 minutos o 1 hora dependiendo del equipo donde se ejecute el programa, y se comprobó que la diferencia con 10.000 datos al momento de analizar los gráficos era mínima).

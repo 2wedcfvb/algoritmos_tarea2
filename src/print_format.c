@@ -129,6 +129,8 @@ void print_help(const char *programName)
     printf("  %-14s %s\n", "-t", "Ejecuta el flujo interactivo de ordenamiento");
     printf("  %-14s %s\n", "-i <id>", "Busca un deportista por ID");
     printf("  %-14s %s\n", "-r <cantidad>", "Muestra el top N por puntaje");
+    printf("  %-14s %s\n", "-k <k>", "Muestra el k-esimo deportista por puntaje");
+    printf("  %-14s %s\n", "-n", "Ejecuta benchmark de seleccion");
     printf("  %-14s %s\n", "-p <min> <max>", "Muestra deportistas con puntaje en ese rango");
     printf("  %-14s %s\n", "-b", "Ejecuta benchmark de busqueda");
     printf("  %-14s %s\n", "-s", "Ejecuta benchmark de ordenamiento");

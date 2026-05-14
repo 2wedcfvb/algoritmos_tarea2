@@ -5,7 +5,7 @@
 El desarrollo se realizó sobre una versión anterior ya funcional del proyecto. Este consiste en un sistema de gestión de deportistas, que permite cargar datos desde un archivo CSV, ordenarlos según distintos criterios y mostrar resultados específicos como el ranking de los mejores deportistas. Este se basó en la idea de evaluar el rendimiento de diferentes algoritmos de ordenamiento y búsqueda secuenciales, los cuales se mantuvieron en la versión actual.
 
 \subsection{Deportistas y generación de datos}
-Los deportistas se representan mediante una estructura que contiene: \textit{ID}, \textit{nombre}, \textit{puntaje} y \textit{competencias}. La generación de datos se realiza mediante la opción \textit{-g <numero>} del programa, que crea un archivo CSV con el número especificado de deportistas. Cada deportista tiene un ID único, un nombre generado aleatoriamente, y un puntaje y cantidad de competencias también aleatorios dentro de rangos predefinidos. Esto permite probar los algoritmos con conjuntos de datos de diferentes tamaños y características.
+Los deportistas se representan mediante una estructura que contiene: \texttt{ID}, \texttt{nombre}, \texttt{puntaje} y \texttt{competencias}. La generación de datos se realiza mediante la opción \texttt{-g <numero>} del programa, que crea un archivo CSV con el número especificado de deportistas. Cada deportista tiene un ID único, un nombre generado aleatoriamente, y un puntaje y cantidad de competencias también aleatorios dentro de rangos predefinidos. Esto permite probar los algoritmos con conjuntos de datos de diferentes tamaños y características.
 
 \subsection{Funcionalidades}
 El programa implementa una interfaz de línea de comandos, que ofrece las siguientes funcionalidades principales:
@@ -42,20 +42,6 @@ Una vez ordenadas ambas mitades, se utiliza una función auxiliar \texttt{merge}
 Durante la mezcla, los elementos son comparados mediante la función \texttt{compare\_by\_criteria}, permitiendo ordenar según distintos criterios del sistema (ID, puntaje o cantidad de competencias). Además, la función \texttt{should\_precede} abstrae la lógica de comparación para soportar tanto orden ascendente como descendente.
 
 El proceso de mezcla recorre simultáneamente ambos arreglos temporales e inserta en el arreglo original el elemento que debe preceder al otro según el criterio seleccionado. Cuando una de las mitades se agota, los elementos restantes de la otra mitad son copiados directamente.
-
-Debido al uso de memoria auxiliar para las sublistas temporales, el algoritmo requiere una complejidad espacial adicional de:
-
-\[
-O(n)
-\]
-
-mientras que su complejidad temporal se mantiene estable en:
-
-\[
-O(n \log n)
-\]
-
-tanto en el caso promedio como en el peor caso.
 
 \subsection{Merge Sort Optimizado}
 
@@ -105,20 +91,6 @@ La variante de mediana de tres examina el primer, el del medio y el último elem
 
 \subsubsection{Estructura recursiva}
 Cada función sigue la misma estructura: si \( low < high \), se posiciona el pivote, se particiona el subarreglo obteniendo el índice final del pivote \( pi \), y se llama recursivamente sobre los intervalos \([low, pi-1]\) y \([pi+1, high]\). El caso base es implícito: cuando \( low \geq high \), el subarreglo tiene un solo elemento o está vacío, por lo que ya está ordenado y no hay nada que hacer.
-
-La complejidad en el caso promedio es:
-
-\[
-O(n \log n)
-\]
-
-El peor caso es:
-
-\[
-O(n^2)
-\]
-
-y ocurre cuando el pivote siempre queda en un extremo, situación que las variantes de pivote aleatorio y mediana de tres mitigan considerablemente.
 
 
 \section{Algoritmos de Búsqueda y Selección}
@@ -338,36 +310,102 @@ La función \texttt{quick\_select\_recursive} implementa el ciclo de divide y ve
         \item Si \(k =\) \texttt{pivotIndex}, el elemento buscado fue encontrado en su posición correcta.
         \item Si \(k <\) \texttt{pivotIndex}, el elemento está en la mitad izquierda, se recursa:
         \[
-        	texttt{quick\_select\_recursive(arr, left, pivotIndex - 1, k, \ldots)}
+        	\texttt{quick\_select\_recursive(arr, left, pivotIndex - 1, k, \ldots)}
         \]
         \item Si \(k >\) \texttt{pivotIndex}, el elemento está en la mitad derecha, se recursa:
         \[
-        	texttt{quick\_select\_recursive(arr, pivotIndex + 1, right, k, \ldots)}
+        	\texttt{quick\_select\_recursive(arr, pivotIndex + 1, right, k, \ldots)}
         \]
     \end{itemize}
 \end{itemize}
 
-\subsubsection{Complejidad}
-
-La complejidad temporal promedio es:
-
-\[
-O(n)
-\]
-
-ya que en cada iteración solo se continúa explorando una partición del arreglo, y el tamaño del subarreglo se reduce aproximadamente por un factor constante en promedio.
-
-Sin embargo, el peor caso ocurre cuando el pivote siempre queda en un extremo, resultando en:
-
-\[
-O(n^2)
-\]
-
-aunque este comportamiento es poco frecuente en datos aleatorios y mitiga considerablemente el uso de mediana de tres.
-
-La complejidad espacial es $O(\log n)$ por las llamadas recursivas apiladas en el stack.
-
 \section{Aplicación práctica}
+
+\subsection{Flujo interactivo de ordenamiento}
+
+La opción \texttt{-t} del programa permite acceder a un menú interactivo que facilita la ejecución de operaciones de ordenamiento y visualización de resultados. El flujo está diseñado para ser amigable con el usuario mientras proporciona información detallada sobre el rendimiento de cada algoritmo.
+
+\subsubsection{Selección del algoritmo}
+
+El programa presenta un menú que lista todos los algoritmos de ordenamiento disponibles:
+
+\begin{enumerate}
+    \item Insertion Sort
+    \item Bubble Sort (optimizado)
+    \item Selection Sort (optimizado)
+    \item Cocktail Shaker Sort
+    \item Merge Sort
+    \item Merge Sort Optimizado
+    \item Quick Sort (pivote primero)
+    \item Quick Sort (pivote último)
+    \item Quick Sort (pivote aleatorio)
+    \item Quick Sort (pivote mediana de tres)
+\end{enumerate}
+
+El usuario selecciona el algoritmo ingresando el número correspondiente. El programa valida la entrada y rechaza opciones inválidas.
+
+\subsubsection{Carga de datos}
+
+Antes de ejecutar el ordenamiento, el programa carga automáticamente el archivo CSV actual en memoria. La función \texttt{load\_data} realiza las siguientes operaciones:
+
+\begin{itemize}
+    \item Invoca \texttt{load\_deportistas\_array} para leer y parsear el archivo CSV.
+    \item Valida que la carga fue exitosa y que el arreglo contiene elementos.
+    \item En caso de error, muestra un mensaje de error y retorna 0 para indicar fallo.
+    \item Si la carga es exitosa, el arreglo se mantiene en memoria para procesar.
+\end{itemize}
+
+\subsubsection{Ejecución y medición de tiempo}
+
+Una vez cargados los datos y seleccionado el algoritmo, el programa:
+
+\begin{enumerate}
+    \item Registra el tiempo inicial usando \texttt{clock\_gettime(CLOCK\_MONOTONIC, \&startTime)}.
+    \item Ejecuta el algoritmo seleccionado mediante un \texttt{switch} que invoca la función correspondiente.
+    \item Registra el tiempo final con otra llamada a \texttt{clock\_gettime}.
+    \item Calcula el tiempo transcurrido en segundos:
+    \[
+    \text{elapsedSeconds} = (\text{endTime.tv\_sec} - \text{startTime.tv\_sec}) + \frac{\text{endTime.tv\_nsec} - \text{startTime.tv\_nsec}}{10^9}
+    \]
+\end{enumerate}
+
+La precisión alcanzada es de nanosegundos, suficiente para medir el rendimiento incluso de operaciones rápidas.
+
+\subsubsection{Visualización de resultados}
+
+Después de ejecutar el ordenamiento, el programa muestra:
+
+\begin{itemize}
+    \item \textbf{Encabezado:} Nombre del algoritmo, criterio de ordenamiento (ID, puntaje, competencias), orden (ascendente/descendente), cantidad de elementos mostrados, total de elementos procesados, y tiempo transcurrido.
+    \item \textbf{Datos:} Los deportistas ordenados (o los primeros \(N\) si se configura un ranking).
+\end{itemize}
+
+
+\subsection{Flujo interactivo de búsqueda}
+
+El programa también ofrece un menú interactivo para operaciones de búsqueda mediante la opción \texttt{-i}. El usuario puede seleccionar entre los siguientes algoritmos:
+
+\begin{enumerate}
+    \item Búsqueda Secuencial
+    \item Búsqueda Binaria
+    \item Búsqueda Binaria Recursiva
+    \item Búsqueda Binaria por Rango (busca por puntaje)
+    \item Búsqueda Exponencial
+    \item Búsqueda por Interpolación
+\end{enumerate}
+
+Algunos algoritmos requieren que el arreglo esté previamente ordenado. El programa ordena automáticamente los datos (usando Quick Sort con mediana de tres) antes de ejecutar estos algoritmos.
+
+\subsubsection{Tipos de resultado}
+
+Dependiendo del algoritmo seleccionado, el programa retorna:
+
+\begin{itemize}
+    \item \textbf{Búsqueda simple:} Un índice único del elemento encontrado, o -1 si no existe.
+    \item \textbf{Búsqueda por rango:} Una estructura \texttt{Range} con los índices \texttt{start} y \texttt{end} de todos los elementos coincidentes.
+\end{itemize}
+
+El programa también mide y muestra el tiempo transcurrido para cada búsqueda, permitiendo comparar la eficiencia de diferentes algoritmos en el mismo conjunto de datos.
 
 \subsection{Ranking de los mejores N deportistas}
 Para obtener el ranking de los \(N\) mejores deportistas según puntaje, se implementó la función \texttt{get\_top\_n\_athletes}, que recibe el arreglo de deportistas, su cantidad total y el valor \(N\). La función reserva un arreglo de \(N\) posiciones y lo completa llamando a \texttt{get\_kth\_athlete} con \(k = 1, 2, \ldots, N\), obteniendo cada puesto de forma independiente mediante Quick Select.
@@ -393,3 +431,233 @@ O(n \log n)
 de un ordenamiento completo. Esto lo hace más eficiente cuando \(N\) es pequeño respecto al total de deportistas.
 
 La función \texttt{show\_ranking} se encarga de cargar los datos desde el archivo CSV, invocar \texttt{get\_top\_n\_athletes} para obtener los resultados y mostrarlos utilizando las funciones de formato ya existentes en el sistema.
+
+\subsection{K-ésimo deportista por puntaje}
+
+La opción \texttt{-k <numero>} permite obtener el deportista ubicado en la posición \(k\) ordenado por puntaje, sin necesidad de ordenar el arreglo completo. Esta funcionalidad utiliza el algoritmo \textit{Quick Select} para lograr un desempeño promedio lineal en lugar de \(n \log n\).
+
+\subsubsection{Entrada del usuario}
+
+El usuario invoca el programa con:
+
+\texttt{./programa -k \textless{}numero\textgreater{}}
+
+donde \texttt{\textless{}numero\textgreater{}} representa la posición deseada (1 para el mejor deportista, 2 para el segundo mejor, etc.). El programa valida que el número sea válido (positivo y no mayor que la cantidad total de deportistas disponibles).
+
+\subsubsection{Proceso de búsqueda}
+
+El flujo es el siguiente:
+
+\begin{enumerate}
+    \item \textbf{Carga de datos:} Se carga el archivo CSV con todos los deportistas en memoria.
+    
+    \item \textbf{Validación:} Se verifica que \(k\) sea válido (es decir, \(1 \leq k \leq \text{cantidad total}\)).
+    
+    \item \textbf{Invocación de Quick Select:} Se llama a la función \texttt{get\_kth\_athlete} con parámetros:
+    \begin{itemize}
+        \item \textbf{deportistas:} Puntero al arreglo cargado.
+        \item \textbf{count:} Cantidad total de deportistas.
+        \item \textbf{k:} Posición deseada.
+        \item \textbf{criteria:} Criterio de búsqueda (para este caso, siempre \texttt{SCORE\_CRITERIA}).
+        \item \textbf{order:} Orden de clasificación (para este caso, siempre descendente para obtener los \textit{mejores} deportistas).
+    \end{itemize}
+    
+    \item \textbf{Ejecución recursiva:} La función invoca \texttt{quick\_select\_recursive} que implementa divide y vencerás:
+    \begin{itemize}
+        \item Selecciona un pivote usando mediana de tres.
+        \item Particiona el arreglo alrededor del pivote.
+        \item Si el pivote está en la posición \(k\), retorna ese elemento.
+        \item Si \(k\) es menor, recursa en la mitad izquierda (elementos mayores).
+        \item Si \(k\) es mayor, recursa en la mitad derecha (elementos menores).
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Ventaja sobre ordenamiento completo}
+
+Si se utilizara un algoritmo de ordenamiento completo como Merge Sort, la complejidad sería:
+
+\[
+O(n \log n)
+\]
+
+Sin embargo, Quick Select requiere en promedio tan solo:
+
+\[
+O(n)
+\]
+
+operaciones. Para un conjunto grande de deportistas, la diferencia es significativa. Por ejemplo, buscar el elemento 10 en un arreglo de 1,000,000 de deportistas mediante Quick Select es aproximadamente \(20\) veces más rápido que un ordenamiento completo.
+
+El peor caso es \(O(n^2)\), pero ocurre únicamente cuando la selección del pivote es particularmente desfavorable (por ejemplo, elegir siempre el elemento más pequeño o más grande). La estrategia de mediana de tres reduce significativamente la probabilidad de este escenario.
+
+\subsubsection{Recuperación del elemento}
+
+Una vez que Quick Select identifica el elemento en la posición \(k\), la función \texttt{get\_kth\_athlete} retorna una copia del deportista encontrado. El programa entonces:
+
+\begin{itemize}
+    \item Muestra el resultado mediante las funciones de formato estándar (\texttt{print\_deportista}).
+    \item Incluye información adicional como el puntaje y cantidad de competencias.
+    \item Libera la memoria reservada durante la carga de datos.
+\end{itemize}
+
+\subsubsection{Independencia de ordenamiento previo}
+
+A diferencia de los algoritmos de búsqueda (binaria, exponencial, interpolación), Quick Select \textbf{no requiere} que el arreglo esté previamente ordenado. Opera directamente sobre los datos cargados desde el archivo CSV, realizando las comparaciones y reorganizaciones internas necesarias para localizar el elemento deseado sin modificar permanentemente el arreglo original (salvo internamente durante la partición).
+
+\subsection{Deportistas por rango de puntajes}
+
+La opción \texttt{-p} permite obtener todos los deportistas cuyo puntaje se encuentre dentro de un intervalo especificado por el usuario en la línea de comando. Esta funcionalidad implementa divide y vencerás mediante tres fases recursivas para localizar eficientemente el rango completo de elementos.
+
+\subsubsection{Entrada del usuario}
+
+El usuario invoca el programa con:
+
+\texttt{./programa -p \textless{}puntaje\_min\textgreater{} \textless{}puntaje\_max\textgreater{}}
+
+donde se especifican dos valores enteros:
+
+\begin{itemize}
+    \item \textbf{puntaje\_min:} El límite inferior del rango deseado.
+    \item \textbf{puntaje\_max:} El límite superior del rango deseado.
+\end{itemize}
+
+El programa valida que ambos valores sean no-negativos. Si \texttt{puntaje\_min > puntaje\_max}, el programa automáticamente los intercambia para facilitar el uso.
+
+\subsubsection{Proceso general}
+
+El flujo de ejecución es el siguiente:
+
+\begin{enumerate}
+    \item \textbf{Validación:} Verifica que ambos puntajes sean mayores o iguales a cero. Si alguno es negativo, muestra un error y termina.
+    
+    \item \textbf{Ajuste de rango:} Si \(\texttt{puntaje\_init} > \texttt{puntaje\_end}\), los intercambia automáticamente.
+    
+    \item \textbf{Carga de datos:} Lee el archivo CSV con todos los deportistas en memoria.
+    
+    \item \textbf{Ordenamiento:} Ordena el arreglo por puntaje en orden \textbf{ascendente} utilizando Quick Sort con estrategia de mediana de tres. Este ordenamiento es imprescindible para que las búsquedas binarias recursivas funcionen correctamente.
+    
+    \item \textbf{Búsqueda de rango:} Implementa tres fases recursivas de divide y vencerás para localizar todos los elementos dentro del intervalo \([\texttt{puntaje\_min}, \texttt{puntaje\_max}]\).
+    
+    \item \textbf{Visualización:} Imprime todos los deportistas cuyos índices estén dentro del rango encontrado.
+\end{enumerate}
+
+\subsubsection{Búsqueda binaria por rango con divide y vencerás}
+
+La función \texttt{range\_binary\_search} implementa una estrategia completamente recursiva de divide y vencerás dividida en tres fases:
+
+\textbf{Fase 1: Localización inicial (find\_any\_recursive)}
+
+Esta función busca recursivamente \textbf{cualquier} elemento cuyo puntaje coincida exactamente con el valor objetivo:
+
+\begin{itemize}
+    \item \textbf{Caso base:} Si \(\texttt{low} > \texttt{high}\), no existe ningún elemento, retorna $-1$.
+    
+    \item \textbf{División:} Calcula \(\texttt{mid} = \texttt{low} + (\texttt{high} - \texttt{low}) / 2\).
+    
+    \item \textbf{Conquista:} Se evalúan tres casos:
+    \begin{itemize}
+        \item Si \(\texttt{deportistas[mid]->puntaje} =\) \texttt{targetValue}, retorna \(\texttt{mid}\) inmediatamente.
+        \item Si \(\texttt{deportistas[mid]->puntaje} <\) \texttt{targetValue}, recursa en la mitad derecha.
+        \item Si \(\texttt{deportistas[mid]->puntaje} >\) \texttt{targetValue}, recursa en la mitad izquierda.
+    \end{itemize}
+\end{itemize}
+
+Una vez que encuentra cualquier elemento en el rango, las siguientes fases expanden para localizar los límites exactos.
+
+\textbf{Fase 2: Expansión izquierda (find\_leftmost\_recursive)}
+
+Esta función busca recursivamente el \textbf{primer} (índice más bajo) elemento con el valor objetivo expandiendo hacia la izquierda:
+
+\begin{itemize}
+    \item \textbf{Caso base:} Si \(\texttt{low} > \texttt{high}\), retorna $-1$.
+    
+    \item \textbf{División:} Calcula \(\texttt{mid} = \texttt{low} + (\texttt{high} - \texttt{low}) / 2\).
+    
+    \item \textbf{Conquista:} Se evalúan tres casos:
+    \begin{itemize}
+        \item Si \(\texttt{deportistas[mid]->puntaje} =\) \texttt{targetValue}:
+        \begin{itemize}
+            \item Realiza una llamada recursiva a la izquierda: \(\texttt{find\_leftmost\_recursive}(\text{...}, \texttt{low}, \texttt{mid} - 1, \text{...})\)
+            \item Si la llamada retorna un índice válido, ese es más a la izquierda, se retorna.
+            \item Si retorna $-1$, significa que \(\texttt{mid}\) es el más a la izquierda.
+        \end{itemize}
+        \item Si \(\texttt{deportistas[mid]->puntaje} <\) \texttt{targetValue}, recursa a la derecha.
+        \item Si \(\texttt{deportistas[mid]->puntaje} >\) \texttt{targetValue}, recursa a la izquierda.
+    \end{itemize}
+\end{itemize}
+
+Esta fase retorna el índice del primer deportista en el rango.
+
+\textbf{Fase 3: Expansión derecha (find\_rightmost\_recursive)}
+
+De forma simétrica, esta función busca recursivamente el \textbf{último} (índice más alto) elemento con el valor objetivo expandiendo hacia la derecha:
+
+\begin{itemize}
+    \item \textbf{Caso base:} Si \(\texttt{low} > \texttt{high}\), retorna $-1$.
+    
+    \item \textbf{División:} Calcula \(\texttt{mid} = \texttt{low} + (\texttt{high} - \texttt{low}) / 2\).
+    
+    \item \textbf{Conquista:} Se evalúan tres casos:
+    \begin{itemize}
+        \item Si \(\texttt{deportistas[mid]->puntaje} =\) \texttt{targetValue}:
+        \begin{itemize}
+            \item Realiza una llamada recursiva a la derecha: \(\texttt{find\_rightmost\_recursive}(\text{...}, \texttt{mid} + 1, \texttt{high}, \text{...})\)
+            \item Si la llamada retorna un índice válido, ese es más a la derecha, se retorna.
+            \item Si retorna $-1$, significa que \(\texttt{mid}\) es el más a la derecha.
+        \end{itemize}
+        \item Si \(\texttt{deportistas[mid]->puntaje} <\) \texttt{targetValue}, recursa a la derecha.
+        \item Si \(\texttt{deportistas[mid]->puntaje} >\) \texttt{targetValue}, recursa a la izquierda.
+    \end{itemize}
+\end{itemize}
+
+Esta fase retorna el índice del último deportista en el rango.
+
+\subsubsection{Estructura de retorno}
+
+La función \texttt{range\_binary\_search} retorna una estructura \texttt{Range} que contiene:
+
+\begin{itemize}
+    \item \texttt{start:} Índice del primer deportista cuyo puntaje está dentro del rango (resultado de \texttt{find\_leftmost\_recursive}).
+    \item \texttt{end:} Índice del último deportista cuyo puntaje está dentro del rango (resultado de \texttt{find\_rightmost\_recursive}).
+\end{itemize}
+
+Si el rango no contiene ningún deportista, ambos campos se establecen en $-1$, señalando que no hay resultados.
+
+\subsubsection{Complejidad}
+
+Aunque el algoritmo ejecuta tres fases recursivas, cada una es una búsqueda binaria independiente:
+
+\[
+O(\log n) \text{ para cada fase}
+\]
+
+Por lo tanto, la complejidad total es:
+
+\[
+O(3 \log n) = O(\log n)
+\]
+
+Este costo es significativamente más eficiente que un recorrido lineal \(O(n)\) que sería necesario si el arreglo no estuviera ordenado.
+
+\subsubsection{Visualización de resultados}
+
+Una vez encontrado el rango, el programa:
+
+\begin{enumerate}
+    \item \textbf{Muestra un encabezado:} Indica el criterio de búsqueda, el intervalo especificado, la cantidad de resultados encontrados.
+    
+    \item \textbf{Rango de índices:} Muestra claramente dónde comienzan y dónde terminan los resultados.
+    
+    \item \textbf{Enumera los deportistas:} Imprime todos los deportistas cuyo índice esté entre \texttt{start} y \texttt{end}, mostrando para cada uno: ID, nombre, puntaje y cantidad de competencias.
+    
+    \item \textbf{Tiempo transcurrido:} Incluye el tiempo total de ordenamiento y búsqueda en segundos.
+\end{enumerate}
+
+\subsubsection{Ejemplo de uso}
+
+Para encontrar todos los deportistas con puntajes entre 50 y 75:
+
+\texttt{./programa -p 50 75}
+
+El programa ordenará todos los deportistas por puntaje y mostrará aquellos cuyos puntajes se encuentren en ese intervalo usando divide y vencerás recursivo.
+

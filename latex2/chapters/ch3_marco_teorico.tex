@@ -24,10 +24,10 @@ Al igual que el Merge Sort, el Quick Sort es un algoritmo de ordenamiento basado
 Este algoritmo funciona seleccionando un pivote y realizando una partición del arreglo en dos subarreglos: uno con los elementos menores que el pivote y otro con los elementos mayores. Posteriormente, el mismo procedimiento se aplica de forma recursiva a cada subarreglo hasta que todos los elementos quedan ordenados.
 
 \subsubsection{Pivote último elemento}
-En esta variante, el pivote se selecciona como el último elemento del arreglo. Aunque es fácil de implementar, esta estrategia puede llevar a un rendimiento deficiente (complejidad \(O(n^2)\)) en casos donde los datos ya están ordenados o casi ordenados, ya que el pivote no divide el arreglo de manera equilibrada.
+En esta variante, el pivote se selecciona como el último elemento del arreglo. Aunque es fácil de implementar, esta estrategia puede llevar a un rendimiento deficiente en casos donde los datos ya están ordenados o casi ordenados. La complejidad promedio esperada es \(O(n \log n)\), pero el peor caso es \(O(n^2)\) cuando el pivote no divide el arreglo de manera equilibrada.
 
 \subsubsection{Pivote primer elemento}
-En esta variante, el pivote se selecciona como el primer elemento del arreglo. Similar a la selección del último elemento, esta estrategia también puede resultar en un rendimiento deficiente (complejidad \(O(n^2)\)) para datos ordenados o casi ordenados, debido a la falta de equilibrio en la partición.
+En esta variante, el pivote se selecciona como el primer elemento del arreglo. Similar a la selección del último elemento, esta estrategia también puede resultar en un rendimiento deficiente para datos ordenados o casi ordenados. La complejidad promedio esperada es \(O(n \log n)\), pero el peor caso es \(O(n^2)\) debido a la falta de equilibrio en la partición.
 
 \subsubsection{Pivote elemento aleatorio}
 En esta variante, el pivote se selecciona de manera aleatoria dentro del arreglo. Esta estrategia mejora el rendimiento esperado del Quick Sort, ya que reduce la probabilidad de seleccionar pivotes que conduzcan a particiones desequilibradas. La complejidad promedio esperada es \(O(n \log n)\), el mejor caso también es \(O(n \log n)\) y el peor caso sigue siendo \(O(n^2)\), aunque ocurre con baja probabilidad.
@@ -40,7 +40,7 @@ En esta variante, el pivote se selecciona como la mediana de tres elementos: el 
 \subsection{Búsqueda Binaria Recursiva}
 Es un algoritmo de búsqueda cuyo funcionamiento se basa en dividir repetidamente el arreglo en dos mitades, descartando en cada paso la mitad en la que el elemento buscado sea imposible de encontrar. Para funcionar necesita que los datos estén previamente ordenados.
 
-La complejidad temporal de la búsqueda binaria es \(O(\log n)\) en el mejor y promedio de los casos, y \(O(\log n)\) en el peor caso, debido a la naturaleza de la división del espacio de búsqueda. La búsqueda binaria es eficiente para grandes conjuntos de datos ordenados, pero no es adecuada para datos no ordenados.
+La complejidad temporal de la búsqueda binaria es \(O(\log n)\) en todos los casos (mejor, promedio y peor), debido a que siempre divide el espacio de búsqueda por la mitad en cada iteración, independientemente del estado de los datos. La búsqueda binaria es eficiente para grandes conjuntos de datos ordenados, pero no es adecuada para datos no ordenados.
 
 \subsection{Búsqueda por Interpolación}
 Es una mejora sobre la búsqueda binaria para casos donde los datos están distribuidos de manera uniforme. En lugar de buscar siempre en el centro, el algoritmo calcula una posición estimada basándose en el valor buscado y los valores en los extremos del arreglo.
@@ -50,7 +50,7 @@ La complejidad temporal de la búsqueda por interpolación es \(O(1)\) en el mej
 \subsection{Búsqueda exponencial}
 Es un algoritmo de búsqueda que combina la eficiencia de la búsqueda binaria con la capacidad de manejar arreglos de tamaño desconocido. Comienza buscando en posiciones exponenciales (1, 2, 4, 8, etc.) hasta encontrar un rango que contenga el elemento buscado. Luego, realiza una búsqueda binaria dentro de ese rango.
 
-Su complejidad temporal es \(O(1)\) en el mejor caso cuando el elemento buscado está en la primera posición, \(O(\log i)\) en función de la posición \(i\) del elemento buscado, y \(O(\log n)\) en el peor caso. La búsqueda exponencial es especialmente útil para arreglos de tamaño desconocido o muy grandes, donde la búsqueda binaria tradicional no sería aplicable.
+Su complejidad temporal es \(O(1)\) en el mejor caso cuando el elemento buscado está en la primera posición. En el caso promedio, la complejidad es \(O(\log i)\), donde \(i\) es la posición del elemento buscado, ya que la fase de expansión exponencial realiza aproximadamente \(\log i\) iteraciones y la búsqueda binaria posterior también es \(O(\log i)\). En el peor caso es \(O(\log n)\). La búsqueda exponencial es especialmente útil para arreglos de tamaño desconocido o muy grandes, donde la búsqueda binaria tradicional no sería aplicable.
 
 \subsection{Búsqueda binaria por rango}
 Es una variante de la búsqueda binaria que se utiliza para encontrar el rango de posiciones donde un valor específico aparece en un arreglo ordenado. En la implementación del proyecto, primero se localiza una coincidencia mediante búsqueda binaria y luego se expanden los límites hacia la izquierda y la derecha para abarcar todas las ocurrencias contiguas del mismo valor.
@@ -61,3 +61,39 @@ La complejidad temporal es \(O(\log n + k)\), donde \(k\) es la cantidad de elem
 Este algoritmo se utiliza para encontrar el k-ésimo elemento más pequeño en una lista desordenada. Utiliza una lógica similar a Quick Sort (selección de un pivote), pero a diferencia de este, solo continúa la búsqueda en la partición que contiene el índice deseado, lo que reduce significativamente el tiempo de ejecución.
 
 La complejidad temporal de Quick Select es \(O(n)\) en el mejor caso, \(O(n)\) en el caso promedio, y \(O(n^2)\) en el peor caso. En la implementación del proyecto se utiliza la mediana de tres como criterio para elegir el pivote, lo que ayuda a reducir la probabilidad de alcanzar el peor caso y mejora el comportamiento práctico del algoritmo. Este algoritmo es especialmente útil para grandes conjuntos de datos donde se necesita encontrar un elemento específico sin ordenar completamente la lista.
+
+\section{Resumen de Complejidades}
+A continuación se presenta una tabla resumen de las complejidades temporales de los algoritmos discutidos:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Algoritmo} & \textbf{Mejor Caso} & \textbf{Caso Promedio} & \textbf{Peor Caso} \\
+\hline
+\textbf{Merge Sort} & $O(n \log n)$ & $O(n \log n)$ & $O(n \log n)$ \\
+\hline
+\textbf{Merge Sort Optimizado} & $O(n \log n)$ & $O(n \log n)$ & $O(n \log n)$ \\
+\hline
+\textbf{Quick Sort (último elemento)} & $O(n \log n)$ & $O(n \log n)$ & $O(n^2)$ \\
+\hline
+\textbf{Quick Sort (primer elemento)} & $O(n \log n)$ & $O(n \log n)$ & $O(n^2)$ \\
+\hline
+\textbf{Quick Sort (elemento aleatorio)} & $O(n \log n)$ & $O(n \log n)$ & $O(n^2)$ \\
+\hline
+\textbf{Quick Sort (mediana de tres)} & $O(n \log n)$ & $O(n \log n)$ & $O(n^2)$ \\
+\hline
+\textbf{Búsqueda Binaria Recursiva} & $O(\log n)$ & $O(\log n)$ & $O(\log n)$ \\
+\hline
+\textbf{Búsqueda por Interpolación} & $O(1)$ & $O(\log \log n)$ & $O(n)$ \\
+\hline
+\textbf{Búsqueda Exponencial} & $O(1)$ & $O(\log i)$ & $O(\log n)$ \\
+\hline
+\textbf{Búsqueda por Rango} & $O(\log n)$ & $O(\log n + k)$ & $O(n)$ \\
+\hline
+\textbf{Quick Select} & $O(n)$ & $O(n)$ & $O(n^2)$ \\
+\hline
+\end{tabular}
+\caption{Complejidades temporales de los algoritmos de ordenamiento y búsqueda. La variable $i$ representa la posición del elemento buscado en búsqueda exponencial, y $k$ representa la cantidad de elementos coincidentes en búsqueda por rango.}
+\label{tab:complejidades}
+\end{table}

@@ -1,6 +1,6 @@
-# =========================================
+
 # Script de gnuplot para benchmarks
-# =========================================
+
 
 set datafile separator ","
 
@@ -28,17 +28,17 @@ set logscale y
 set style data lines
 set pointsize 1.6
 
-# =========================================
+
 # Archivos
-# =========================================
+
 
 searchFile     = "db/search_benchmark.csv"
 sortFile       = "db/sort_benchmark.csv"
 selectionFile  = "db/selection_benchmark.csv"
 
-# =========================================
+
 # SEARCH - PROMEDIO
-# =========================================
+
 
 set output "plots/search_average_benchmark.pdf"
 set title "Benchmark de busqueda - Caso promedio"
@@ -53,9 +53,9 @@ searchFile using 1:7 title "Binaria rango"
 
 unset output
 
-# =========================================
+
 # SEARCH - PEOR CASO
-# =========================================
+
 
 set output "plots/search_worst_benchmark.pdf"
 set title "Benchmark de busqueda - Peor caso"
@@ -70,9 +70,9 @@ searchFile using 1:13 title "Binaria rango"
 
 unset output
 
-# =========================================
+
 # SORT - MEJOR CASO
-# =========================================
+
 
 set output "plots/sort_best_benchmark.pdf"
 set title "Benchmark de ordenamiento - Mejor caso"
@@ -91,9 +91,9 @@ sortFile using 1:11 title "Quick median"
 
 unset output
 
-# =========================================
+
 # SORT - PROMEDIO
-# =========================================
+
 
 set output "plots/sort_average_benchmark.pdf"
 set title "Benchmark de ordenamiento - Caso promedio"
@@ -112,9 +112,9 @@ sortFile using 1:21 title "Quick median"
 
 unset output
 
-# =========================================
+
 # SORT - PEOR CASO
-# =========================================
+
 
 set output "plots/sort_worst_benchmark.pdf"
 set title "Benchmark de ordenamiento - Peor caso"
@@ -133,9 +133,9 @@ sortFile using 1:31 title "Quick median"
 
 unset output
 
-# =========================================
+
 # QUICKSELECT
-# =========================================
+
 
 set output "plots/selection_benchmark.pdf"
 set title "Benchmark Quickselect"

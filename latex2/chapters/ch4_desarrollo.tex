@@ -545,7 +545,7 @@ El flujo de ejecución es el siguiente:
 
 La función \texttt{range\_binary\_search} implementa una estrategia completamente recursiva de divide y vencerás dividida en tres fases:
 
-\textbf{Fase 1: Localización inicial (find\_any\_recursive)}
+\textbf{Fase 1: Localización inicial (\texttt{find\_any\_recursive})}
 
 Esta función busca recursivamente \textbf{cualquier} elemento cuyo puntaje coincida exactamente con el valor objetivo:
 
@@ -564,7 +564,7 @@ Esta función busca recursivamente \textbf{cualquier} elemento cuyo puntaje coin
 
 Una vez que encuentra cualquier elemento en el rango, las siguientes fases expanden para localizar los límites exactos.
 
-\textbf{Fase 2: Expansión izquierda (find\_leftmost\_recursive)}
+\textbf{Fase 2: Expansión izquierda (\texttt{find\_leftmost\_recursive})}
 
 Esta función busca recursivamente el \textbf{primer} (índice más bajo) elemento con el valor objetivo expandiendo hacia la izquierda:
 
@@ -577,7 +577,9 @@ Esta función busca recursivamente el \textbf{primer} (índice más bajo) elemen
     \begin{itemize}
         \item Si \(\texttt{deportistas[mid]->puntaje} =\) \texttt{targetValue}:
         \begin{itemize}
-            \item Realiza una llamada recursiva a la izquierda: \(\texttt{find\_leftmost\_recursive}(\text{...}, \texttt{low}, \texttt{mid} - 1, \text{...})\)
+            \item Realiza una llamada recursiva a la izquierda: \[
+            \texttt{find\_leftmost\_recursive}(\text{...}, \texttt{low}, \texttt{mid} - 1, \text{\ldots})
+            \]
             \item Si la llamada retorna un índice válido, ese es más a la izquierda, se retorna.
             \item Si retorna $-1$, significa que \(\texttt{mid}\) es el más a la izquierda.
         \end{itemize}
@@ -588,7 +590,7 @@ Esta función busca recursivamente el \textbf{primer} (índice más bajo) elemen
 
 Esta fase retorna el índice del primer deportista en el rango.
 
-\textbf{Fase 3: Expansión derecha (find\_rightmost\_recursive)}
+\textbf{Fase 3: Expansión derecha (\texttt{find\_rightmost\_recursive})}
 
 De forma simétrica, esta función busca recursivamente el \textbf{último} (índice más alto) elemento con el valor objetivo expandiendo hacia la derecha:
 
@@ -661,3 +663,50 @@ Para encontrar todos los deportistas con puntajes entre 50 y 75:
 
 El programa ordenará todos los deportistas por puntaje y mostrará aquellos cuyos puntajes se encuentren en ese intervalo usando divide y vencerás recursivo.
 
+\section{Benchmarks}
+Para evaluar el rendimiento de los algoritmos implementados, se realizaron benchmarks utilizando conjuntos de datos de diferentes tamaños. O sea, se midió el tiempo de ejecución de cada algoritmo en su peor caso, mejor caso y caso promedio, aumentando gradualmente la cantidad de deportistas procesados. Los resultados se guardan en archivos CSV para su posterior análisis y visualización.
+
+En general, estos siguen el siguiente flujo:
+\begin{itemize}
+    \item \textbf{Carga de datos:} Se carga el arreglo de deportistas desde el archivo CSV.
+    \item \textbf{Intervalos:} Se divide el total de datos en $N$ intervalos, así pudiendose evaluar el rendimiento a medida que aumenta la cantidad de elementos procesados.
+    \item \textbf{Repeticiones:} Cada prueba se repite varias veces (5), y se promedia el tiempo para reducir variaciones causadas por el sistema operativo u otros procesos.
+    \item \textbf{Clonación:} Se clona el arreglo original antes de cada ejecución para garantizar que cada algoritmo trabaje con los mismos datos sin modificaciones previas. 
+\end{itemize}
+
+Además, se permite al usuario escoger los algoritmos a evaluar utilizando una máscara de bits en vez de condiciones múltiples. O sea, el usuario coloca los números correspondientes a los algoritmos que desea evaluar separados por espacios, y el programa construye una máscara de bits para identificar cuáles ejecutar.
+
+\subsection{Benchmark de búsqueda}
+Implementado en \texttt{run\_search\_benchmark}, este evalúa algoritmos como búsqueda secuencial, binaria, exponencial e interpolación.
+\begin{itemize}
+    \item \textbf{Selección:} Utiliza una máscara de bits (\texttt{BenchmarkMask}) para permitir al usuario elegir qué algoritmos ejecutar.
+    \item \textbf{Casos (\texttt{prepare\_search\_case}):}
+    \begin{itemize}
+        \item \textbf{Mejor caso:} Busca el ID del primer elemento del arreglo.
+        \item \textbf{Caso promedio:} Busca un ID existente en una posición aleatoria.
+        \item \textbf{Peor caso:} Busca un ID inexistente para forzar el recorrido máximo.
+    \end{itemize}
+    \item \textbf{Requisito:} Para algoritmos no secuenciales, el arreglo se ordena automáticamente por ID (o puntaje) antes de la medición.
+\end{itemize}
+
+\subsection{Benchmark de ordenamiento}
+Ejecutado por \texttt{run\_sort\_benchmark}, mide el rendimiento de algoritmos desde \textit{Bubble Sort} hasta variaciones de \textit{Quick Sort}.
+\begin{itemize}
+    \item \textbf{Mejor caso:} Arreglo pre-ordenado ascendentemente.
+    \item \textbf{Caso promedio:} Arreglo desordenado aleatoriamente (\textit{shuffle}).
+    \item \textbf{Peor caso:} Arreglo ordenado descendentemente para maximizar comparaciones e intercambios.
+\end{itemize}
+
+\subsection{Benchmark de selección}
+En \texttt{run\_selection\_benchmark} se evalúa la eficiencia de \texttt{Quickselect} (\texttt{get\_kth\_element}).
+\begin{itemize}
+    \item \textbf{Mejor caso:} Busca el elemento mediano ($k = n/2$), facilitando particiones balanceadas.
+    \item \textbf{Peor caso:} Busca el elemento mínimo ($k = 0$), lo que puede degradar el rendimiento según el pivote.
+\end{itemize}
+
+\subsection{Benchmark de threshold (umbral)}
+Implementado en \texttt{run\_threshold\_benchmark}, este es una prueba de optimización para el \textit{Merge Sort} híbrido.
+\begin{itemize}
+    \item \textbf{Funcionamiento:} Mantiene el tamaño del arreglo ($n$) constante y varía el umbral (de 2 a 128) donde el algoritmo cambia de \textit{Merge Sort} a \textit{Insertion Sort}.
+    \item \textbf{Objetivo:} Identificar el valor de \texttt{threshold} que produce el menor tiempo de ejecución total.
+\end{itemize}

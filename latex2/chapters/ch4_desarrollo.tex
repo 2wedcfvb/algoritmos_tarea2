@@ -1,0 +1,269 @@
+\chapter{Desarrollo}
+
+En esta sección se detalla la implementación de los algoritmos y las decisiones tomadas para mejorar su desempeño.
+
+\section{Algoritmos de Ordenamiento}
+
+\subsection{Merge Sort}
+
+La implementación de Merge Sort se realizó mediante una estrategia recursiva de tipo \textit{divide and conquer}. El algoritmo divide sucesivamente el arreglo de deportistas en dos mitades hasta alcanzar el caso base, correspondiente a subarreglos de un único elemento, los cuales ya se consideran ordenados.
+
+La función recursiva calcula el punto medio utilizando la expresión:
+
+\[
+\texttt{mid = left + (right - left) / 2}
+\]
+
+evitando posibles errores cuando los índices son muy grandes que podrían ocurrir con la expresión clásica:
+
+\[
+\texttt{(left + right) / 2}
+\]
+
+Una vez ordenadas ambas mitades, se utiliza una función auxiliar \texttt{merge} encargada de fusionarlas en un único segmento ordenado. Para ello, se reservan dinámicamente dos arreglos temporales (\texttt{L} y \texttt{R}) que almacenan copias de las sublistas izquierda y derecha respectivamente.
+
+Durante la mezcla, los elementos son comparados mediante la función \texttt{compare\_by\_criteria}, permitiendo ordenar según distintos criterios del sistema (ID, puntaje o cantidad de competencias). Además, la función \texttt{should\_precede} abstrae la lógica de comparación para soportar tanto orden ascendente como descendente.
+
+El proceso de mezcla recorre simultáneamente ambos arreglos temporales e inserta en el arreglo original el elemento que debe preceder al otro según el criterio seleccionado. Cuando una de las mitades se agota, los elementos restantes de la otra mitad son copiados directamente.
+
+Debido al uso de memoria auxiliar para las sublistas temporales, el algoritmo requiere una complejidad espacial adicional de:
+
+\[
+O(n)
+\]
+
+mientras que su complejidad temporal se mantiene estable en:
+
+\[
+O(n \log n)
+\]
+
+tanto en el caso promedio como en el peor caso.
+
+\subsection{Merge Sort Optimizado}
+
+La versión optimizada de Merge Sort conserva la misma estructura recursiva y el mismo procedimiento de mezcla que la implementación estándar, pero incorpora una optimización híbrida basada en Insertion Sort para mejorar el rendimiento práctico sobre subarreglos pequeños.
+
+Durante la recursión, antes de seguir dividiendo el arreglo, se evalúa el tamaño del subarreglo actual mediante la condición:
+
+\[
+\texttt{right - left + 1 <= MERGE\_SORT\_THRESHOLD}
+\]
+
+Si el tamaño es menor o igual al umbral definido, el algoritmo deja de subdividir y utiliza \texttt{Insertion Sort} sobre ese segmento.
+
+Esta optimización se basa en que Insertion Sort posee un costo constante muy bajo y un excelente desempeño en arreglos pequeños o parcialmente ordenados, evitando el overhead asociado a múltiples llamadas recursivas y asignaciones dinámicas de memoria.
+
+La implementación de \texttt{Insertion Sort} desplaza los elementos mayores hacia la derecha hasta encontrar la posición correcta del elemento actual (\texttt{key}). Al igual que en Merge Sort, las comparaciones se realizan mediante la función \texttt{should\_precede}, manteniendo compatibilidad con múltiples criterios y órdenes de ordenamiento.
+
+La operación de mezcla sigue utilizando arreglos auxiliares dinámicos para fusionar las mitades ya ordenadas. Además, la implementación incluye validaciones de memoria después de cada llamada a \texttt{malloc}. En caso de error de asignación, se liberan inmediatamente los recursos reservados mediante \texttt{free}, evitando fugas de memoria.
+
+Aunque la complejidad asintótica permanece en:
+
+\[
+O(n \log n)
+\]
+
+la reducción de llamadas recursivas y operaciones de memoria sobre subarreglos pequeños produce una mejora significativa en el rendimiento real del algoritmo.
+
+\subsection{Quick sort}
+
+\subsubsection{Partición de Lomuto}
+La partición es la operación central del algoritmo. Recibe el subarreglo delimitado por low y high, tomando siempre el último elemento como pivote. Mantiene un índice i que comienza antes del inicio del subarreglo y marca el límite de los elementos que ya se sabe que deben ir a la izquierda del pivote. El índice j recorre todos los elementos del subarreglo excepto el pivote. Cada vez que encuentra un elemento que pertenece a la izquierda, avanza i e intercambia ese elemento con deportistas[i]. Al terminar el recorrido, coloca el pivote en i + 1, que es su posición definitiva, y retorna ese índice.
+
+\subsubsection{Variantes de selección de pivote}
+Todas las variantes comparten exactamente el mismo código de partición y recursión. La única diferencia entre ellas es qué hacen antes de partir, y todas terminan dejando el pivote elegido en la última posición para que Lomuto pueda operar siempre de la misma manera.
+
+\subsubsection{Variante de último elemento}
+La variante de último elemento no realiza ninguna acción previa, ya que el pivote ya está donde Lomuto lo espera. Es la más simple pero la más vulnerable: en arreglos ya ordenados el pivote siempre cae en un extremo, lo que degenera el rendimiento a \[O(n^2)\].
+
+\subsubsection{Variante de primer elemento}
+La variante de primer elemento simplemente intercambia el primer elemento con el último antes de partir. Resuelve el caso del arreglo invertido pero sigue siendo vulnerable al arreglo ya ordenado, que es el peor caso contrario.
+
+\subsubsection{Variante de elemento aleatorio}
+La variante de elemento aleatorio elige un índice al azar dentro del rango y lo mueve al final. Al no depender de la disposición actual del arreglo, rompe los patrones adversos que afectan a los pivotes fijos y garantiza un buen rendimiento promedio sin importar el orden inicial de los datos.
+
+\subsubsection{Variante de mediana de tres}
+La variante de mediana de tres examina el primer, el del medio y el último elemento, los ordena entre sí mediante comparaciones directas, y usa la mediana como pivote moviéndola al final. Es la variante más robusta: evita los peores casos de los pivotes fijos, produce particiones más balanceadas que el pivote aleatorio en la mayoría de los casos, y no depende de un generador de números aleatorios.
+
+\subsubsection{Estructura recursiva}
+Cada función sigue la misma estructura: si \( low < high \), se posiciona el pivote, se particiona el subarreglo obteniendo el índice final del pivote \( pi \), y se llama recursivamente sobre los intervalos \([low, pi-1]\) y \([pi+1, high]\). El caso base es implícito: cuando \( low \geq high \), el subarreglo tiene un solo elemento o está vacío, por lo que ya está ordenado y no hay nada que hacer.
+
+La complejidad en el caso promedio es:
+
+\[
+O(n \log n)
+\]
+
+El peor caso es:
+
+\[
+O(n^2)
+\]
+
+y ocurre cuando el pivote siempre queda en un extremo, situación que las variantes de pivote aleatorio y mediana de tres mitigan considerablemente.
+
+\section{Algoritmos de Búsqueda y Selección}
+
+\subsection{Búsqueda Binaria Recursiva}
+La función recibe cinco parámetros: el arreglo de deportistas, los índices \texttt{left} y \texttt{right} que delimitan el rango actual de búsqueda, el criterio de búsqueda \texttt{criteria} y el ID objetivo. El parámetro \texttt{criteria} está presente únicamente por consistencia con el resto de los algoritmos de búsqueda del proyecto, pero no se utiliza internamente ya que esta función siempre busca por ID.
+
+La estructura del algoritmo sigue un esquema \texttt{if/else} anidado. El primer \texttt{if} evalúa el caso base: si \texttt{left} es mayor que \texttt{right}, el rango se agotó sin encontrar el elemento y se retorna \texttt{-1}. De lo contrario, se calcula el índice del elemento del medio usando la expresión:
+
+\[
+\texttt{mid = left + (right - left) / 2}
+\]
+
+Esta expresión es equivalente a:
+
+\[
+\texttt{(left + right) / 2}
+\]
+
+pero evita un potencial desbordamiento aritmético en arreglos muy grandes.
+
+Con el índice del medio calculado, se compara su ID con el objetivo. Si son iguales, se retorna el índice directamente. Si el ID del medio es mayor que el buscado, el elemento solo puede estar en la mitad izquierda, por lo que se llama recursivamente con:
+
+\[
+\texttt{right = mid - 1}
+\]
+
+En caso contrario, el elemento está en la mitad derecha y se llama con:
+
+\[
+\texttt{left = mid + 1}
+\]
+
+Cada llamada recursiva reduce el rango a la mitad, lo que produce una complejidad temporal de:
+
+\[
+O(\log n)
+\]
+        
+A diferencia de la versión iterativa, esta versión consume espacio adicional en el stack proporcional a:
+
+\[
+O(\log n)
+\]
+
+debido a las llamadas apiladas, aunque en este trabajo de laboratorio no representa un problema.
+
+\subsection{Búsqueda por Interpolación}
+
+La búsqueda por interpolación se implementó como una alternativa optimizada a la búsqueda binaria para arreglos numéricos ordenados y distribuidos de manera relativamente uniforme.
+
+A diferencia de la búsqueda binaria, que siempre inspecciona el elemento central del rango actual, este algoritmo estima una posición probable del elemento objetivo utilizando interpolación lineal. La posición se calcula mediante la expresión:
+
+La posición estimada $pos$ se calcula mediante la fórmula de interpolación lineal, la cual mapea el valor buscado dentro del rango de valores conocidos del arreglo:
+
+\begin{equation}
+    pos = low + \left[ \frac{high - low}{highValue - lowValue} \cdot (targetValue - lowValue) \right]
+\end{equation}
+
+Donde:
+\begin{itemize}
+    \item \textbf{low / high:} Son los índices de los límites actuales del subarreglo.
+    \item \textbf{lowValue / highValue:} Son los valores almacenados en dichos índices.
+    \item \textbf{targetValue:} Es el valor numérico que se desea encontrar.
+\end{itemize}
+
+La implementación soporta múltiples criterios de búsqueda (\texttt{ID}, \texttt{puntaje} y \texttt{competencias}) mediante condicionales que extraen dinámicamente el valor numérico correspondiente desde cada deportista.
+
+Una vez estimada la posición, el algoritmo compara el valor encontrado con el objetivo:
+\begin{itemize}
+    \item Si ambos coinciden, se retorna el índice encontrado.
+    \item Si el valor es menor que el objetivo, la búsqueda continúa en la mitad derecha.
+    \item En caso contrario, continúa en la mitad izquierda.
+\end{itemize}
+
+La implementación incluye varias validaciones para garantizar robustez:
+\begin{itemize}
+    \item Verificación de punteros nulos y arreglos vacíos.
+    \item Control de división por cero cuando los valores extremos son iguales.
+    \item Comprobación de que el valor objetivo se encuentre dentro del rango actual.
+    \item Validación de que la posición interpolada permanezca dentro de los límites válidos del arreglo.
+\end{itemize}
+
+Cuando los datos poseen una distribución uniforme, la complejidad promedio puede aproximarse a:
+
+\[
+O(\log \log n)
+\]
+
+superando a la búsqueda binaria tradicional. Sin embargo, en distribuciones desbalanceadas o no uniformes, el rendimiento puede degradarse hasta:
+
+\[
+O(n)
+\]
+
+\subsection{Quick Select}
+
+Para obtener el elemento ubicado en una posición específica sin ordenar completamente el arreglo, se implementó el algoritmo \textit{Quick Select}. Este algoritmo reutiliza la lógica de partición de Quick Sort, pero únicamente continúa la búsqueda sobre la partición que contiene el elemento deseado.
+
+La operación principal del algoritmo es la función \texttt{partition}, basada en el esquema de Lomuto. En esta implementación, el pivote corresponde al último elemento del subarreglo. Durante el recorrido, todos los elementos que deben preceder al pivote según el criterio y orden seleccionados son intercambiados hacia la izquierda mediante la función \texttt{swap\_deportistas}.
+
+La comparación se realiza utilizando:
+
+\[
+\texttt{compare\_by\_criteria}
+\]
+
+lo que permite seleccionar elementos según distintos atributos del deportista, mientras que el parámetro \texttt{order} permite trabajar tanto en orden ascendente como descendente.
+
+Una vez finalizada la partición, el pivote queda ubicado en su posición definitiva dentro del arreglo. A partir de esto, el algoritmo evalúa tres casos:
+\begin{itemize}
+    \item Si el índice del pivote coincide con \(k\), el elemento buscado fue encontrado.
+    \item Si \(k\) es menor que el índice del pivote, la búsqueda continúa únicamente en la partición izquierda.
+    \item Si \(k\) es mayor, la búsqueda continúa únicamente en la partición derecha.
+\end{itemize}
+
+A diferencia de Quick Sort, Quick Select nunca procesa ambas particiones simultáneamente, lo que reduce considerablemente el trabajo realizado.
+
+El caso base ocurre cuando el subarreglo contiene un único elemento:
+
+\[
+\texttt{left == right}
+\]
+
+momento en el que dicho elemento es retornado directamente.
+
+La complejidad temporal promedio del algoritmo es:
+
+\[
+O(n)
+\]
+
+ya que en cada iteración solo se continúa explorando una partición del arreglo. Sin embargo, al igual que Quick Sort, el peor caso ocurre cuando las particiones quedan extremadamente desbalanceadas, alcanzando una complejidad de:
+
+\[
+O(n^2)
+\]
+
+aunque este comportamiento es poco frecuente en datos aleatorios.
+
+\section{Aplicación práctica}
+
+\subsection{Ranking de los mejores N deportistas}
+Para obtener el ranking de los \(N\) mejores deportistas según puntaje, se implementó la función \texttt{get\_top\_n\_athletes}, que recibe el arreglo de deportistas, su cantidad total y el valor \(N\). La función reserva un arreglo de \(N\) posiciones y lo completa llamando a \texttt{get\_kth\_athlete} con \(k = 1, 2, \ldots, N\), obteniendo cada puesto de forma independiente mediante Quick Select.
+
+A diferencia de ordenar el arreglo completo, Quick Select localiza el \(k\)-ésimo elemento sin necesidad de ordenar todos los datos. Su costo promedio es:
+
+\[
+O(n)
+\]
+
+por llamada, lo que resulta en un costo total de:
+
+\[
+O(N \cdot n)
+\]
+
+para el ranking completo, frente al costo:
+
+\[
+O(n \log n)
+\]
+
+de un ordenamiento completo. Esto lo hace más eficiente cuando \(N\) es pequeño respecto al total de deportistas.
+
+La función \texttt{show\_ranking} se encarga de cargar los datos desde el archivo CSV, invocar \texttt{get\_top\_n\_athletes} para obtener los resultados y mostrarlos utilizando las funciones de formato ya existentes en el sistema.

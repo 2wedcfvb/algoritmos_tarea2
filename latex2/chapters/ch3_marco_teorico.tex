@@ -1,0 +1,26 @@
+\chapter{Marco Teórico}
+
+En este capítulo se describen los conceptos y algoritmos utilizados en el proyecto, centrados en la estrategia de diseño de algoritmos conocida como "Divide y Vencerás".
+
+\section{Algoritmos de Ordenamiento}
+
+\subsection{Merge Sort}
+Es un algoritmo basado en la técnica de dividir el problema en subproblemas más pequeños. El proceso consiste en dividir el arreglo original en dos mitades, ordenarlas por separado de manera recursiva y finalmente combinarlas mediante una operación de mezcla (merge) que asegura el orden de los elementos.
+
+\subsection{Merge Sort Optimizado}
+El rendimiento del Merge Sort estándar puede mejorar mediante ajustes prácticos. Una optimización común consiste en establecer un umbral; cuando el tamaño del arreglo es pequeño, el algoritmo cambia a \textit{Insertion Sort} para reducir la carga de la recursividad. También es posible verificar si las dos mitades ya están ordenadas antes de intentar mezclarlas, evitando operaciones innecesarias.
+
+\subsection{Quick sort}
+Al igual que el Merge Sort, el Quick Sort es un algoritmo de ordenamiento basado en la técnica de divide y vencerás.
+Este algoritmo funciona seleccionando un pivote y realizando una partición del arreglo en dos subarreglos: uno con los elementos menores que el pivote y otro con los elementos mayores. Posteriormente, el mismo procedimiento se aplica de forma recursiva a cada subarreglo hasta que todos los elementos quedan ordenados.
+
+\section{Algoritmos de Búsqueda y Selección}
+
+\subsection{Búsqueda Binaria}
+Es un algoritmo de búsqueda cuyo funcionamiento se basa en dividir repetidamente el arreglo en dos mitades, descartando en cada paso la mitad en la que el elemento buscado sea imposible de encontrar. Para funcionar necesita que los datos estén previamente ordenados.
+
+\subsection{Búsqueda por Interpolación}
+Es una mejora sobre la búsqueda binaria para casos donde los datos están distribuidos de manera uniforme. En lugar de buscar siempre en el centro, el algoritmo calcula una posición estimada basándose en el valor buscado y los valores en los extremos del arreglo.
+
+\subsection{Quick Select}
+Este algoritmo se utiliza para encontrar el k-ésimo elemento más pequeño en una lista desordenada. Utiliza una lógica similar a Quick Sort (selección de un pivote), pero a diferencia de este, solo continúa la búsqueda en la partición que contiene el índice deseado, lo que reduce significativamente el tiempo de ejecución.

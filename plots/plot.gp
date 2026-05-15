@@ -79,16 +79,12 @@ set output "plots/sort_best_benchmark.pdf"
 set title "Benchmark de ordenamiento - Mejor caso"
 
 plot \
-sortFile using 1:2 title "Insertion", \
-sortFile using 1:3 title "Bubble", \
-sortFile using 1:4 title "Selection", \
-sortFile using 1:5 title "Cocktail", \
-sortFile using 1:6 title "Merge", \
-sortFile using 1:7 title "Merge opt", \
-sortFile using 1:8 title "Quick first", \
-sortFile using 1:9 title "Quick last", \
-sortFile using 1:10 title "Quick random", \
-sortFile using 1:11 title "Quick median"
+sortFile using 1:2 title "Merge", \
+sortFile using 1:3 title "Merge opt", \
+sortFile using 1:4 title "Quick first", \
+sortFile using 1:5 title "Quick last", \
+sortFile using 1:6 title "Quick random", \
+sortFile using 1:7 title "Quick median"
 
 unset output
 
@@ -100,16 +96,12 @@ set output "plots/sort_average_benchmark.pdf"
 set title "Benchmark de ordenamiento - Caso promedio"
 
 plot \
-sortFile using 1:12 title "Insertion", \
-sortFile using 1:13 title "Bubble", \
-sortFile using 1:14 title "Selection", \
-sortFile using 1:15 title "Cocktail", \
-sortFile using 1:16 title "Merge", \
-sortFile using 1:17 title "Merge opt", \
-sortFile using 1:18 title "Quick first", \
-sortFile using 1:19 title "Quick last", \
-sortFile using 1:20 title "Quick random", \
-sortFile using 1:21 title "Quick median"
+sortFile using 1:8 title "Merge", \
+sortFile using 1:9 title "Merge opt", \
+sortFile using 1:10 title "Quick first", \
+sortFile using 1:11 title "Quick last", \
+sortFile using 1:12 title "Quick random", \
+sortFile using 1:13 title "Quick median"
 
 unset output
 
@@ -121,16 +113,12 @@ set output "plots/sort_worst_benchmark.pdf"
 set title "Benchmark de ordenamiento - Peor caso"
 
 plot \
-sortFile using 1:22 title "Insertion", \
-sortFile using 1:23 title "Bubble", \
-sortFile using 1:24 title "Selection", \
-sortFile using 1:25 title "Cocktail", \
-sortFile using 1:26 title "Merge", \
-sortFile using 1:27 title "Merge opt", \
-sortFile using 1:28 title "Quick first", \
-sortFile using 1:29 title "Quick last", \
-sortFile using 1:30 title "Quick random", \
-sortFile using 1:31 title "Quick median"
+sortFile using 1:14 title "Merge", \
+sortFile using 1:15 title "Merge opt", \
+sortFile using 1:16 title "Quick first", \
+sortFile using 1:17 title "Quick last", \
+sortFile using 1:18 title "Quick random", \
+sortFile using 1:19 title "Quick median"
 
 unset output
 

@@ -72,3 +72,7 @@ compile_commands.json
 *.blg
 html/
 docs/doxygen/latex/
+*.cb
+*.cb2
+*.snm
+*.vrb
